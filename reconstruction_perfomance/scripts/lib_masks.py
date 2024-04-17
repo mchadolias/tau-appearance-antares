@@ -1,9 +1,9 @@
 def get_trackmask(df):
     cc_ma = df["is_cc"] == True
-    numu_ma = abs(df["type"]) == 14
+    numu_ma = get_numumask(df)
 
     track_tau = df["interaction_type"] == 2
-    tau_ma = abs(df["type"]) == 16
+    tau_ma = get_nutaumask(df)
 
     track_ma = (cc_ma & numu_ma) | (track_tau & tau_ma)
 
@@ -32,17 +32,17 @@ def get_showermask_nc(df):
     return nc_ma 
         
 def get_nutaumask(df):
-    nutau_mask = abs(df["type"]) == 16
+    nutau_mask = abs(df["Type"]) == 16
 
     return nutau_mask
 
 def get_numumask(df):
-    numu_mask = abs(df["type"]) == 14
+    numu_mask = abs(df["Type"]) == 14
 
     return numu_mask
 
 def get_nuemask(df):
-    nue_mask = abs(df["type"]) == 12
+    nue_mask = abs(df["Type"]) == 12
 
     return nue_mask
 
