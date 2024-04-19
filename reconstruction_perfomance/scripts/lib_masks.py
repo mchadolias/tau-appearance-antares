@@ -1,3 +1,33 @@
+def apply_all_masks(df):
+    """
+    Apply all masks to the dataframe.
+    
+    Args:
+        df (pd.DataFrame): The dataframe you want to apply the masks to.
+        
+    Returns:
+        pd.DataFrame: The dataframe with the masks applied.
+    """
+    df_el_ma = get_nuemask(df)
+    df.loc[df_el_ma, "Flavour type"] = "electron"
+
+    df_muon_ma = get_numumask(df)
+    df.loc[df_muon_ma, "Flavour type"] = "muon"
+
+    df_tau_ma = get_nutaumask(df)
+    df.loc[df_tau_ma, "Flavour type"] = "tau"
+
+    df_track_ma = get_trackmask(df)
+    df.loc[df_track_ma, "Event type"] = "tracks"
+
+    df_shower_nc_ma = get_showermask_nc(df)
+    df.loc[df_shower_nc_ma, "Event type"] = "showers_nc"
+
+    df_shower_cc_ma = get_showermask_cc(df)
+    df.loc[df_shower_cc_ma, "Event type"] = "showers_cc"
+
+    return df
+
 def get_trackmask(df):
     cc_ma = df["is_cc"] == True
     numu_ma = get_numumask(df)
