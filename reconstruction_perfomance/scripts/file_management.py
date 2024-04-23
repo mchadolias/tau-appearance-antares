@@ -20,9 +20,13 @@ def rootfile_to_df(rootfile, columns=None, tree="sel"):
     Returns:
         DataFrame: A DataFrame containing the data from the ROOT file.
     """
+    print(f"Loading the ROOT file: {rootfile}")
+    ctime = time.time()
+    
     with uproot.open(rootfile) as f:
         df = f[tree].arrays(columns, library="pd")
 
+    print(f"ROOT file imported as a Dataframe in: {timedelta(seconds=time.time()-ctime)}")
     return df
 
 def concat_rootfiles_to_df(rootfiles, columns, tree="sel"):
@@ -236,26 +240,40 @@ def list_files_with_pattern(directory, pattern):
     files = glob.glob(directory + '/' + pattern)
     return files
 
-def save_to_hdf5(df, file_name, folder_path = '/sps/km3net/users/mchadoli/ANTARES/nnfit_reco/'):
+def save_to_hdf5(df, filename, path = '/sps/km3net/users/mchadoli/ANTARES/nnfit_reco/'):
     """
     Export the DataFrame to a HDF5 file.
 
     Args:
         df (DataFrame): The DataFrame to be exported.
-        file_name (str): The name of the file to be exported.
+        filename (str): The name of the file to be exported.
         folder_path (str, optional): Directory where the HDF5 file will be exported. 
         Defaults to '/sps/km3net/users/mchadoli/ANTARES/nnfit_reco/'.
     """
-    file_path = os.path.join(folder_path, file_name)
-    df.to_hdf(file_path, key='df', mode='w')
-    print("Data saved to", file_path)
+    print(f"Exporting the Dataframe to a H5 file as: {filename}")
+    ctime = time.time()
+    
+    path = os.path.join(path, filename)
+    df.to_hdf(path, key='df', mode='w')
+    
+    print(f"DataFrame written to an H5 file as: {filename}")
+    print('Exporting time:', timedelta(seconds=time.time()-ctime), '\n')
 
 def rename_h5_df_cols(
     df,
     mapper={
-        "RunID": "run_id",
-        "EventID": "frame_index", 
-        "TrigCount": "event_trigger_counter",
+        "TrigCount": "TriggCounter",
+        "EventID": "Frame",
     },
 ):
     return df.rename(columns=mapper)
+
+def export_dataframe_to_rootfile(df, filename, tree = "sel", path = '/home/wecapstor3/capn/mppi133h/ANTARES/mc/cut_selection/low_energy'):
+    print(f"Exporting the DataFrame to a ROOT file as: {filename}")
+    ctime = time.time()
+    
+    with uproot.recreate(os.path.join(path, filename)) as f:
+        f[tree] = df.to_records(index = False)
+        
+    print(f"DataFrame written to a ROOT file as: {filename}")
+    print('Exporting time:', timedelta(seconds=time.time()-ctime), '\n')
