@@ -1,5 +1,6 @@
 __pycache__
 plots
 data
+summary_files
 *.root
 *.txt
