@@ -1,6 +1,4 @@
 import h5py
-import numpy as np
-import tables
 import uproot
 import pandas as pd
 from datetime import timedelta
@@ -269,7 +267,7 @@ def rename_h5_df_cols(
     return df.rename(columns=mapper)
 
 def export_dataframe_to_rootfile(df, filename, tree = "sel", path = '/home/wecapstor3/capn/mppi133h/ANTARES/mc/cut_selection/low_energy'):
-    print(f"Exporting the DataFrame to a ROOT file as: {filename}")
+    print(f"\nExporting the DataFrame to a ROOT file as: {filename}")
     ctime = time.time()
     
     with uproot.recreate(os.path.join(path, filename)) as f:
