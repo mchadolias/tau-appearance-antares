@@ -1,12 +1,13 @@
 import h5py
 import uproot
 import pandas as pd
+from tqdm import tqdm
 from datetime import timedelta
 import os
 import time
 import glob
 
-def rootfile_to_df(rootfile, columns=None, tree="sel"):
+def load_rootfile_to_df(rootfile, columns=None, tree="sel"):
     """
     Load a ROOT file to a pandas DataFrame.
 
@@ -27,6 +28,42 @@ def rootfile_to_df(rootfile, columns=None, tree="sel"):
     print(f"ROOT file imported as a Dataframe in: {timedelta(seconds=time.time()-ctime)}")
     return df
 
+def load_large_rootfile_to_df(rootfile, columns=None, tree="sel", chunksize=100_000):
+    """
+    Load a large ROOT file into a pandas DataFrame while optimizing memory usage.
+
+    Parameters:
+    file_path (str): The path to the ROOT file.
+    tree_name (str): The name of the TTree to load.
+    columns (list, optional): A list of columns to load. If None, all columns will be loaded.
+    chunksize (int, optional): The number of rows to load in each chunk.
+
+    Returns:
+    A pandas DataFrame containing the data from the TTree.
+    """
+    df_list = []
+    
+    print(f"Loading the ROOT file: {rootfile}")
+    ctime = time.time()
+    
+    # Open the ROOT file and get the TTree object
+    with uproot.open(rootfile) as f:
+
+        # Specify the columns to load
+        if columns is None:
+            columns = f[tree].keys()
+
+        # Load the data in chunks
+        for i in tqdm(range(0, f[tree].num_entries, chunksize)):
+            df = f["sel"].arrays(columns, library="pd", entry_start=i, entry_stop=i+chunksize)
+            
+            # Append the chunk to the list
+            df_list.append(df)
+    
+    print(f"ROOT file imported as a Dataframe in: {timedelta(seconds=time.time()-ctime)}")
+    # Concatenate the chunks into a single DataFrame
+    return pd.concat(df_list, ignore_index=True)
+        
 def concat_rootfiles_to_df(rootfiles, columns, tree="sel"):
     """
     Concatenate multiple ROOT files to a single pandas DataFrame.
@@ -92,12 +129,9 @@ def load_dataframes(filelist, cuts=None, folder_path = '/sps/km3net/users/jgarci
     # Measure time
     ctime = time.time()
     
-    for i,file in enumerate(filelist, start=1):
+    for file in tqdm(filelist):
         if file.endswith(".hdf5"):  # Ensure only data files are processed
             file_path = os.path.join(folder_path, file)
-            
-            # Print the file being processed
-            print_files(file, i, len(filelist))
             
             # Load the DataFrame from the file
             df = pd.read_hdf(file_path, index = False)
