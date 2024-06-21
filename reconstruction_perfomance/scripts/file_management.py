@@ -78,7 +78,7 @@ def concat_rootfiles_to_df(rootfiles, columns, tree="sel"):
     """
     df_list = []
     for rootfile in rootfiles:
-        df = rootfile_to_df(rootfile, columns, tree)
+        df = load_rootfile_to_df(rootfile, columns, tree)
         df_list.append(df)
 
     return pd.concat(df_list, ignore_index=True)
@@ -294,8 +294,9 @@ def save_to_hdf5(df, filename, path = '/sps/km3net/users/mchadoli/ANTARES/nnfit_
 def rename_h5_df_cols(
     df,
     mapper={
-        "TrigCount": "TriggCounter",
-        "EventID": "Frame",
+        "RunID": "run_id",
+        "EventID": "frame_index",
+        "TrigCount": "event_counter_trigger",
     },
 ):
     return df.rename(columns=mapper)
