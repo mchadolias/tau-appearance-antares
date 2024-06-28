@@ -1,0 +1,25 @@
+{
+    "classes": [
+        { "name": "tracks",
+          "general_cut": "(aafit_cos_zenith < -0.5) && (type == 14)",
+          "muon_loose_cut": "(aafit_cos_zenith < -0.5) && (type == 14)",
+          "reconstructions": {
+            "E": "energy_aafit_dEdX_CEA",
+            "cosT": "aafit_cos_zenith",
+            "By": "aafit_bjy"
+          },
+          "ClassNorm" : "TrackNorm"
+        },
+
+        { "name": "showers",
+        "general_cut": "(aafit_cos_zenith < -0.5) && (type != 14)",
+        "muon_loose_cut": "(aafit_cos_zenith < -0.5) && (type != 14)",
+        "reconstructions": {
+          "E": "energy_aafit_dEdX_CEA",
+          "cosT": "aafit_cos_zenith",
+          "By": "aafit_bjy"
+        },
+        "ClassNorm" : "ShowerNorm"
+      }
+      ]
+}

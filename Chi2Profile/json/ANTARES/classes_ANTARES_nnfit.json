@@ -1,0 +1,27 @@
+{
+  "classes": [
+      {
+          "name": "tracks",
+          "general_cut": "((abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && (NNFitTrack_cos_zenith < -0.4)",
+          "muon_loose_cut": "((abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && (NNFitTrack_cos_zenith < -0.4)",
+          "reconstructions": {
+              "E": "NNFitTrack_Energy",
+              "cosT": "NNFitTrack_cos_zenith",
+              "By": "NNFit_bjorken_y"
+            },
+          "ClassNorm": "TrackNorm"
+      },
+
+      {
+          "name": "showers",
+          "general_cut": "(!(abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && (NNFitShower_cos_zenith < -0.4)",
+          "muon_loose_cut": "(!(abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && (NNFitShower_cos_zenith < -0.4)",
+          "reconstructions": {
+              "E": "NNFitShower_Energy",
+              "cosT": "NNFitShower_cos_zenith",
+              "By": "NNFit_bjorken_y"
+            },
+          "ClassNorm": "ShowerNorm"
+      }
+  ]
+}

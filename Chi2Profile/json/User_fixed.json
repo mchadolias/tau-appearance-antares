@@ -1,0 +1,13 @@
+{
+  "user": {
+    "parname": "TauNorm",
+    "npoints": 15,
+    "parmin": 0,
+    "parmax": 2,
+    "outfolder": "fixed",
+    "ordering": "NO",
+    "study": "STD",
+    "reco": "MC",
+    "both_octants": true
+  }
+}

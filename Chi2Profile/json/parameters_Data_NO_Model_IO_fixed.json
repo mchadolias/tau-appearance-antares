@@ -1,0 +1,156 @@
+{
+  "parameters": {
+    "Dm21": {
+      "vData": 7.42e-05,
+      "vModel": 7.42e-05,
+      "fixed": true,
+      "prior": false,
+      "prior_mean": 7.42e-05,
+      "prior_sigma": 2.1e-06
+    },
+    "Dm31": {
+      "vData": 2.517e-03,
+      "vModel": -2.4238e-03,
+      "fixed": true,
+      "prior": false,
+      "prior_mean": -2.4238e-03,
+      "prior_sigma": 2.1e-05
+    },
+    "DeltaCP": {
+      "vData": 197.0,
+      "vModel": 282.0,
+      "fixed": true,
+      "prior": false,
+      "prior_mean": 282.0,
+      "prior_sigma": 27.0
+    },
+    "Theta13": {
+      "vData": 8.57,
+      "vModel": 8.60,
+      "fixed": true,
+      "prior": true,
+      "prior_mean": 8.60,
+      "prior_sigma": 0.12
+    },
+    "Theta12": {
+      "vData": 33.44,
+      "vModel": 33.45,
+      "fixed": true,
+      "prior": false,
+      "prior_mean": 33.45,
+      "prior_sigma": 0.77
+    },
+    "Theta23": {
+      "vData": 49.2,
+      "vModel": 49.3,
+      "fixed": false,
+      "prior": false,
+      "prior_mean": 49.3,
+      "prior_sigma": 2.0
+    },
+    "EnergyScale": {
+      "vData": 1.0,
+      "vModel": 1.0,
+      "fixed": true,
+      "prior": true,
+      "prior_mean": 1.0,
+      "prior_sigma": 0.09
+    },
+    "ZenithSlope": {
+      "vData": 0.0,
+      "vModel": 0.0,
+      "fixed": true,
+      "prior": true,
+      "prior_mean": 0.0,
+      "prior_sigma": 0.02
+    },
+    "EnergySlope": {
+      "vData": 0.0,
+      "vModel": 0.0,
+      "fixed": true,
+      "prior": true,
+      "prior_mean": 0.0,
+      "prior_sigma": 0.3
+    },
+    "NumuNumubarSkew": {
+      "vData": 0.0,
+      "vModel": 0.0,
+      "fixed": true,
+      "prior": true,
+      "prior_mean": 0.0,
+      "prior_sigma": 0.05
+    },
+    "NueNuebarSkew": {
+      "vData": 0.0,
+      "vModel": 0.0,
+      "fixed": true,
+      "prior": true,
+      "prior_mean": 0.0,
+      "prior_sigma": 0.07
+    },
+    "NumuNueSkew": {
+      "vData": 0.0,
+      "vModel": 0.0,
+      "fixed": true,
+      "prior": true,
+      "prior_mean": 0.0,
+      "prior_sigma": 0.02
+    },
+    "NCscale": {
+      "vData": 1.0,
+      "vModel": 1.0,
+      "fixed": true,
+      "prior": true,
+      "prior_mean": 1.0,
+      "prior_sigma": 0.2
+    },
+    "TauNorm": {
+      "vData": 1.0,
+      "vModel": 1.0,
+      "fixed": true,
+      "prior": false,
+      "prior_mean": 1.0,
+      "prior_sigma": 0.2
+    },
+    "MuonNorm": {
+      "vData": 1.0,
+      "vModel": 1.0,
+      "fixed": true,
+      "prior": false,
+      "prior_mean": 1.0,
+      "prior_sigma": 0.05
+    },
+    "TrackNorm": {
+      "vData": 1.0,
+      "vModel": 1.0,
+      "fixed": true,
+      "prior": false,
+      "prior_mean": 1.0,
+      "prior_sigma": 0.1
+    },
+    "ShowerNorm": {
+      "vData": 1.0,
+      "vModel": 1.0,
+      "fixed": true,
+      "prior": false,
+      "prior_mean": 1.0,
+      "prior_sigma": 0.1
+    },
+      "MiddleNorm": {
+      "vData": 1.0,
+      "vModel": 1.0,
+      "fixed": true,
+      "prior": false,
+      "prior_mean": 1.0,
+      "prior_sigma": 0.1
+    },
+    "FluxNorm": {
+      "vData": 1.0,
+      "vModel": 1.0,
+      "fixed": true,
+      "prior": false,
+      "prior_mean": 1.0,
+      "prior_sigma": 0.1
+    }
+  }
+}

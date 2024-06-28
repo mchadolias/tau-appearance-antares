@@ -1,0 +1,28 @@
+{
+    "binning": {
+        "nEbinsTrue": 10,
+        "EminTrue": 1,
+        "EmaxTrue": 100,
+        
+        "nEbinsReco": 25,
+        "EminReco": 20,
+        "EmaxReco": 450,
+
+
+        "ncosTbinsTrue": 40,
+        "ncosTbinsReco": 10,
+        "nBybinsTrue": 1,
+        "nBybinsReco": 1,
+
+        "custom": true,
+        "custom_E": true,
+        "custom_cosT": false,
+        "custom_By": false,
+        "custom_Elinear": false,
+        "custom_cosTlinear": true,
+        "custom_Bylinear": true,
+         "custom_EbinsReco": [9.56352, 11.6296, 14.1421, 17.1974, 20.9128, 25.4308, 30.9249, 55.6102, 100],
+        "custom_cosTbinsReco": [0.0 , 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0 ],
+        "custom_BybinsReco": [0,1]
+    }
+}
