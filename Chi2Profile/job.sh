@@ -7,7 +7,7 @@
 
 #SBATCH --ntasks=1                    # Run a single task (by default tasks == CPU)
 #SBATCH --mem=3G                      # GB
-#SBATCH --time=00-02:00:00               #
+#SBATCH --time=00-00:02:00               #
 #SBATCH --mail-user=mchadolias@km3net.de   # Where to send mail
 #SBATCH --mail-type=FAIL,TIME_LIMIT              # Mail events (NONE, BEGIN, END, FAIL, ALL)
 
@@ -55,12 +55,12 @@ else
 fi
 
 # Define parametes json file
-if [ $ORDERING == "NO"]; then
+if [ $ORDERING == "NO" ]; then
     PARAMS="./json/PARAMETERS/parameters_Data_NO_Model_${ORDERING}_free.json"
-elif [$ORDERING == "IO"]; then 
+elif [ $ORDERING == "IO" ]; then
     PARAMS="./json/PARAMETERS/parameters_Data_IO_Model_${ORDERING}_free.json"
 else
-    echo "ORDERING or TYPE not recognized"
+    echo "ORDERING type not recognized"
     exit
 fi
 
@@ -79,9 +79,9 @@ echo "Parameters: $BINNING $CLASSES $VARIABLES $PARAMS $USER"
 echo "Running MyChi2Profile with TauNorm parameter fixed"
 
 # Define parametes json file
-if [ $ORDERING == "NO"]; then
+if [ $ORDERING == "NO" ]; then
     PARAMS="./json/PARAMETERS/parameters_Data_NO_Model_${ORDERING}_fixed.json"
-elif [$ORDERING == "IO"]; then 
+elif [ $ORDERING == "IO" ]; then 
     PARAMS="./json/PARAMETERS/parameters_Data_IO_Model_${ORDERING}_fixed.json"
 else
     echo "ORDERING or TYPE not recognized"
