@@ -5,7 +5,7 @@
           "general_cut": "((abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && (NNFitTrack_cos_zenith < -0.4)",
           "muon_loose_cut": "((abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && (NNFitTrack_cos_zenith < -0.4)",
           "reconstructions": {
-              "E": "NNFitTrack_Energy",
+              "E": "energy_recoTrue",
               "cosT": "NNFitTrack_cos_zenith",
               "By": "NNFit_bjorken_y"
             },
@@ -17,7 +17,7 @@
           "general_cut": "(!(abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && (NNFitShower_cos_zenith < -0.4)",
           "muon_loose_cut": "(!(abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && (NNFitShower_cos_zenith < -0.4)",
           "reconstructions": {
-              "E": "NNFitShower_Energy",
+              "E": "energy_recoTrue",
               "cosT": "NNFitShower_cos_zenith",
               "By": "NNFit_bjorken_y"
             },
