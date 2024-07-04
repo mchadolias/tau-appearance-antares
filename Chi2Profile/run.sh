@@ -2,7 +2,15 @@
 #
 # Script to run the Chi2Profile code
 #
-# Usage: ./run_MC.sh [EXPERIMENT] [TYPE] [ORDERING]
+# Usage: ./run.sh [EXPERIMENT] [TYPE] [ORDERING] [RECONSTRUCTION]
+#
+# Example: ./run.sh STD free NO MC
+#
+# Arguments:
+# EXPERIMENT: STD or TAU
+# TYPE: Free or Fixed
+# ORDERING: NO or IO
+# RECONSTRUCTION: MC or NNFit or AAFit
 #
 # Author: Michael Chadolias
 
