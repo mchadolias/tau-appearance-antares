@@ -19,7 +19,7 @@ make clean && make
 # Check number of arguments 
 if [ "$#" -ne 4 ]; then
     echo "Illegal number of parameters"
-    echo "Usage: ./run_MC.sh [EXPERIMENT] [TYPE]"
+    echo "Usage: ./run.sh [EXPERIMENT] [TYPE] [ORDERING] [RECONSTRUCTION]"
     echo "EXPERIMENT: STD or TAU"
     echo "TYPE: Free or Fixed"
     echo "ORDERING: NO or IO"
@@ -29,13 +29,12 @@ fi
 
 BINNING="./json/ANTARES/binning_ANTARES.json"
 EXPERIMENT=$1 # "STD" or "TAU"
-TYPE=$2 # "Free" or "Fixed"
+TYPE=$2 # "free" or "fixed"
 ORDERING=$3 # "NO" or "IO"
 RECONSTRUCTION=$4 # "MC" or "NNFit" or "AAFit"
 
-# Define the json files
-
-# Set the ex
+### Define all json files
+# Define variables json file
 if [ $EXPERIMENT == "STD" ]; then
     VARIABLES="./json/ANTARES/variables_ANTARES.json"
 elif [ $EXPERIMENT == "TAU" ]; then
@@ -45,6 +44,7 @@ else
     exit
 fi
 
+# Define classes json file
 if [ $RECONSTRUCTION == "MC" ]; then
     CLASSES="./json/ANTARES/classes_ANTARES_MC.json"
 elif [ $RECONSTRUCTION == "NNFit" ]; then
@@ -56,33 +56,24 @@ else
     exit
 fi
 
-
-if [ $TYPE == "Free" ]; then
-    USER="./json/User_free.json"
-    if [ $ORDERING == "NO" ]; then
-        PARAMS="./json/parameters_Data_NO_Model_NO_free.json"
-    elif [ $ORDERING == "IO" ]; then
-        PARAMS="./json/parameters_Data_NO_Model_IO_free.json"
-    else
-        echo "Ordering not recognized"
-        exit
-    fi
-elif [ $TYPE == "Fixed" ]; then
-    USER="./json/User_fixed.json"
-    if [ $ORDERING == "NO" ]; then
-        PARAMS="./json/parameters_Data_NO_Model_NO_fixed.json"
-    elif [ $ORDERING == "IO" ]; then
-        PARAMS="./json/parameters_Data_NO_Model_IO_fixed.json"
-    else
-        echo "Ordering not recognized"
-        exit
-    fi
+# Define parametes json file
+if [[ $ORDERING == "NO" && $TYPE == "free" ]]; then
+    PARAMS="./json/PARAMETERS/parameters_Data_NO_Model_${ORDERING}_${TYPE}.json"
+elif [[ $ORDERING == "NO" && $TYPE == "fixed" ]]; then
+    PARAMS="./json/PARAMETERS/parameters_Data_NO_Model_${ORDERING}_${TYPE}.json"
+elif [[ $ORDERING == "IO" && $TYPE == "free" ]]; then
+    PARAMS="./json/PARAMETERS/parameters_Data_IO_Model_${ORDERING}_${TYPE}.json"
+elif [[ $ORDERING == "IO" && $TYPE == "fixed" ]]; then
+    PARAMS="./json/PARAMETERS/parameters_Data_IO_Model_${ORDERING}_${TYPE}.json"
 else
-    echo "Type not recognized"
+    echo "ORDERING or TYPE not recognized"
     exit
 fi
 
-# Run script
+# Define user json file
+USER="./json/USER/User_${RECONSTRUCTION}_${EXPERIMENT}_${ORDERING}_${TYPE}.json"
+
+## Run script
 ./bin/MyChi2Profile  $BINNING $CLASSES $VARIABLES $PARAMS $USER
 
 echo "============ Finished ============"
