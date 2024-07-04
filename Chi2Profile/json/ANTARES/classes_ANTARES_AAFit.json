@@ -1,25 +1,27 @@
 {
-    "classes": [
-        { "name": "tracks",
-          "general_cut": "(aafit_cos_zenith < -0.5) && (type == 14)",
-          "muon_loose_cut": "(aafit_cos_zenith < -0.5) && (type == 14)",
+  "classes": [
+      {
+          "name": "tracks",
+          "general_cut": "((abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && (cos_zenith_recoTrue < 0)",
+          "muon_loose_cut": "((abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && (cos_zenith_recoTrue < 0)",
           "reconstructions": {
-            "E": "energy_aafit_dEdX_CEA",
-            "cosT": "aafit_cos_zenith",
-            "By": "aafit_bjy"
-          },
-          "ClassNorm" : "TrackNorm"
-        },
+              "E": "energy_aafit_dEdX_CEA",
+              "cosT": "aafit_cos_zenith",
+              "By": "aafit_bjy"
+            },
+          "ClassNorm": "TrackNorm"
+      },
 
-        { "name": "showers",
-        "general_cut": "(aafit_cos_zenith < -0.5) && (type != 14)",
-        "muon_loose_cut": "(aafit_cos_zenith < -0.5) && (type != 14)",
-        "reconstructions": {
-          "E": "energy_aafit_dEdX_CEA",
-          "cosT": "aafit_cos_zenith",
-          "By": "aafit_bjy"
-        },
-        "ClassNorm" : "ShowerNorm"
+      {
+          "name": "showers",
+          "general_cut": "(!(abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && (cos_zenith_recoTrue < 0)",
+          "muon_loose_cut": "(!(abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && (cos_zenith_recoTrue < 0)",
+          "reconstructions": {
+              "E": "energy_aafit_dEdX_CEA",
+              "cosT": "aafit_cos_zenith",
+              "By": "aafit_bjy"
+            },
+          "ClassNorm": "ShowerNorm"
       }
-      ]
+  ]
 }
