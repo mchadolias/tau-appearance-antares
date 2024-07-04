@@ -39,17 +39,15 @@ int main(int argc, char* argv[]){
 
         Fitter.UpdateFit(updatedjson); //Update just the part of the fit that you need
 
-        //string testvalue_cut = std::to_string(testvalue).substr(0, 4);
-        //string outputname = string(path + "/Chi2Profile_"+parname+"_"+ experiment +"_"+ ordering + "_"+ type + "_"+ method + "_" + testvalue_cut); // Save all the fits in the same file
         string outputname = string(path + "/Chi2Profile_"+parname+"_"+ experiment +"_"+ ordering + "_"+ type + "_"+ method); // Save all the fits in the same file
 
         string outPath_root = outputname + ".root";
-        // bool FileExists = !gSystem->AccessPathName(outPath_root.c_str());
+        bool FileExists = !gSystem->AccessPathName(outPath_root.c_str());
 
-        // if (FileExists){
-        //     cout << "File " << outputname << " already exists. Skipping.." << endl;
-        //     continue;
-        // }
+        if (FileExists && i == 0){
+            cout << "File " << outputname << " already exists. Skipping.." << endl;
+            continue;
+        }
         cout << "Output is written to " << outputname << endl;
 
         if (both_octants) {
