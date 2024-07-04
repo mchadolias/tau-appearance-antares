@@ -14,7 +14,7 @@
         "ExtensiveOutput": true,
         "EnableMCError": true,
         "UseW2Method": true,
-        "PlotEffMass": true,
+        "PlotEffMass": false,
         "Verbose": false,
         "SetMuons": false,
         "EnableSmearMachine": false,
