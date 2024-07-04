@@ -17,7 +17,8 @@ int main(int argc, char* argv[]){
     string type = data["user"]["type"];
     string ordering = data["user"]["ordering"];
     string detector = data["variables"]["MClabel"];
-    string path = "output/" + detector + "/" + experiment  + "/" + ordering + "/" + type ; 
+    string reco = data["user"]["reco"];
+    string path = "output/" + detector + "/" + reco + "/" + experiment  + "/" + ordering + "/" + type ; 
     cout << "Output folder: " << path << endl;
 
     string method = "FitTwoOctants"; 
