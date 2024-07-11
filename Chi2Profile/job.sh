@@ -6,19 +6,22 @@
 ### SLURM
 
 #SBATCH --ntasks=1                    # Run a single task (by default tasks == CPU)
-#SBATCH --mem=3G                      # GB
-#SBATCH --time=00-00:02:00               #
+#SBATCH --mem=2G                      # GB
+#SBATCH --time=01-00:00:00               #
 #SBATCH --mail-user=mchadolias@km3net.de   # Where to send mail
 #SBATCH --mail-type=FAIL,TIME_LIMIT              # Mail events (NONE, BEGIN, END, FAIL, ALL)
 
 # Load modules
+echo "Loading modules"
 source $HOME/bash_scripts/init.sh
+echo "Preparing SWIM environment"
 source $HOME/bash_scripts/swim_env.sh
 
 # Go to the directory of the script
 cd $WORK/master_thesis/tau_appearance/Chi2Profile
 
 # Compile the code
+echo "Compiling the code"
 make clean && make
 
 echo "Starting script:" $(basename $BASH_SOURCE)
@@ -31,6 +34,7 @@ echo "RECONSTRUCTION: $RECONSTRUCTION"
 
 # Define binning json file
 BINNING="./json/ANTARES/binning_ANTARES.json"
+#BINNING="./json/ANTARES/binning_ANTARES_EffMass.json"
 
 # Define variables json file
 if [ $EXPERIMENT == "STD" ]; then
@@ -58,7 +62,7 @@ fi
 if [ $ORDERING == "NO" ]; then
     PARAMS="./json/PARAMETERS/parameters_Data_NO_Model_${ORDERING}_free.json"
 elif [ $ORDERING == "IO" ]; then
-    PARAMS="./json/PARAMETERS/parameters_Data_IO_Model_${ORDERING}_free.json"
+    PARAMS="./json/PARAMETERS/parameters_Data_NO_Model_${ORDERING}_free.json"
 else
     echo "ORDERING type not recognized"
     exit
@@ -82,7 +86,7 @@ echo "Running MyChi2Profile with TauNorm parameter fixed"
 if [ $ORDERING == "NO" ]; then
     PARAMS="./json/PARAMETERS/parameters_Data_NO_Model_${ORDERING}_fixed.json"
 elif [ $ORDERING == "IO" ]; then 
-    PARAMS="./json/PARAMETERS/parameters_Data_IO_Model_${ORDERING}_fixed.json"
+    PARAMS="./json/PARAMETERS/parameters_Data_NO_Model_${ORDERING}_fixed.json"
 else
     echo "ORDERING or TYPE not recognized"
     exit
