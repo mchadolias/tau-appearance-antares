@@ -11,4 +11,4 @@ rm -r output
 
 python3 create_directories.py
 
-echo "\nFinished cleaning the output of the Chi2Profile code"
+echo -e "\nFinished cleaning the output of the Chi2Profile code"
