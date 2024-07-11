@@ -36,6 +36,7 @@ if [ "$#" -ne 4 ]; then
 fi
 
 BINNING="./json/ANTARES/binning_ANTARES.json"
+#BINNING="./json/ANTARES/binning_ANTARES_EffMass.json"
 EXPERIMENT=$1 # "STD" or "TAU"
 TYPE=$2 # "free" or "fixed"
 ORDERING=$3 # "NO" or "IO"
@@ -70,9 +71,9 @@ if [[ $ORDERING == "NO" && $TYPE == "free" ]]; then
 elif [[ $ORDERING == "NO" && $TYPE == "fixed" ]]; then
     PARAMS="./json/PARAMETERS/parameters_Data_NO_Model_${ORDERING}_${TYPE}.json"
 elif [[ $ORDERING == "IO" && $TYPE == "free" ]]; then
-    PARAMS="./json/PARAMETERS/parameters_Data_IO_Model_${ORDERING}_${TYPE}.json"
+    PARAMS="./json/PARAMETERS/parameters_Data_NO_Model_${ORDERING}_${TYPE}.json"
 elif [[ $ORDERING == "IO" && $TYPE == "fixed" ]]; then
-    PARAMS="./json/PARAMETERS/parameters_Data_IO_Model_${ORDERING}_${TYPE}.json"
+    PARAMS="./json/PARAMETERS/parameters_Data_NO_Model_${ORDERING}_${TYPE}.json"
 else
     echo "ORDERING or TYPE not recognized"
     exit
