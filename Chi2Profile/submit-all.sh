@@ -13,11 +13,14 @@ EXPERIMENT=("STD" "TAU")
 ORDERING=("NO" "IO")
 RECONSTRUCTION=("MC" "NNFit" "AAFit")
 
+COUNTER=1
 for EXP in "${EXPERIMENT[@]}"; do
     for ORD in "${ORDERING[@]}"; do
         for REC in "${RECONSTRUCTION[@]}"; do
-            echo "Submitting job for $EXP $ORD $REC"
+            echo -e "\n--------------------"
+            echo -e "Submitting job number ${COUNTER} for $EXP $ORD $REC"
             ./submit.sh 0 $EXP $ORD $REC
+            COUNTER=$((COUNTER+1))
         done
     done
 done
