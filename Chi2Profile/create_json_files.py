@@ -16,7 +16,7 @@ def create_json_User(
     for reco, experiment, order, ff in product(reco_list, experiment_list, ordering_list, fixed_free_list):
         
         if ff == 'fixed':
-            npoints = 10
+            npoints = 20
             parmin = 0.0
             parmax = 2.0
         elif ff == 'free':
@@ -39,10 +39,10 @@ def create_json_User(
         }
 
         # Check if file already exists
-        if os.path.exists(os.path.join(json_path, f'User_{reco}_{experiment}_{order}_{ff}.json')):
+        if os.path.exists(os.path.join(json_path, f'USER/User_{reco}_{experiment}_{order}_{ff}.json')):
             print(f"File already exists: User_{reco}_{experiment}_{order}_{ff}.json")
         else:
-            with open(os.path.join(json_path, f'User_{reco}_{experiment}_{order}_{ff}.json'), 'w') as f:
+            with open(os.path.join(json_path, f'USER/User_{reco}_{experiment}_{order}_{ff}.json'), 'w') as f:
                 json.dump(json_file, f, indent=4)
                 print(f"Created file: User_{reco}_{experiment}_{order}_{ff}.json")
         
