@@ -1,6 +1,6 @@
 {
     "binning": {
-        "nEbinsTrue": 10,
+        "nEbinsTrue": 25,
         "EminTrue": 1,
         "EmaxTrue": 100,
         
