@@ -15,6 +15,11 @@ EXPERIMENT=$2 # "STD" or "TAU"
 ORDERING=$3 # "NO" or "IO"
 RECONSTRUCTION=$4 # "MC" or "NNFit" or "AAFit"
 
+if [ -z "$EXPERIMENT" ] || [ -z "$ORDERING" ] || [ -z "$RECONSTRUCTION" ]; then
+    echo "Please provide all the necessary arguments"
+    exit
+fi
+
 echo -e "\n--------------------"
 echo "Starting script:" $(basename $BASH_SOURCE)
 echo "DRY_RUN: $DRY_RUN"
