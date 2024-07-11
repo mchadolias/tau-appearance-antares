@@ -7,7 +7,7 @@
           "reconstructions": {
               "E": "energy_recoTrue",
               "cosT": "NNFitTrack_cos_zenith",
-              "By": "NNFit_bjorken_y"
+              "By": "NNFit_Bjorken_y"
             },
           "ClassNorm": "TrackNorm"
       },
@@ -19,7 +19,7 @@
           "reconstructions": {
               "E": "energy_recoTrue",
               "cosT": "NNFitShower_cos_zenith",
-              "By": "NNFit_bjorken_y"
+              "By": "NNFit_Bjorken_y"
             },
           "ClassNorm": "ShowerNorm"
       }

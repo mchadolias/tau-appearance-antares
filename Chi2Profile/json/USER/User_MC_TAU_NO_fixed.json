@@ -1,7 +1,7 @@
 {
     "user": {
         "parname": "TauNorm",
-        "npoints": 20,
+        "npoints": 21,
         "parmin": 0.0,
         "parmax": 2.0,
         "type": "fixed",

@@ -16,7 +16,7 @@ def create_json_User(
     for reco, experiment, order, ff in product(reco_list, experiment_list, ordering_list, fixed_free_list):
         
         if ff == 'fixed':
-            npoints = 20
+            npoints = 21
             parmin = 0.0
             parmax = 2.0
         elif ff == 'free':

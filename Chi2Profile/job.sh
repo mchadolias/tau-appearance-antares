@@ -96,4 +96,12 @@ USER="./json/USER/User_${RECONSTRUCTION}_${EXPERIMENT}_${ORDERING}_fixed.json"
 
 ./bin/MyChi2Profile  $BINNING $CLASSES $VARIABLES $PARAMS $USER
 
+# Plotting the Chi-Square profile
+echo "Plotting the Chi-Square profile"
+
+module load python
+conda activate master_thesis
+
+python3 plot_chi_square.py --probe $EXPERIMENT --ordering $ORDERING --reconstruction $RECONSTRUCTION
+
 echo "============ Finished ============"
