@@ -100,8 +100,12 @@ USER="./json/USER/User_${RECONSTRUCTION}_${EXPERIMENT}_${ORDERING}_fixed.json"
 echo "Plotting the Chi-Square profile"
 
 module load python
-conda activate master_thesis
 
-python3 plot_chi_square.py --probe $EXPERIMENT --ordering $ORDERING --reconstruction $RECONSTRUCTION
+# Define the path to the Anaconda installation's 'bin' directory2
+WORKDIR="/sps/km3net/users/mchadoli/master_thesis/tau_appearance/Chi2Profile"
+
+cd ${WORKDIR}
+
+python3 plot_chi_square.py --probe $EXPERIMENT --ordering $ORDERING --reco $RECONSTRUCTION
 
 echo "============ Finished ============"

@@ -7,8 +7,14 @@ import argparse
 import numpy as np
 
 # Set the style of the plots
-plt.style.use('seaborn-v0_8-paper')
-#plt.rcParams['savefig.dpi'] = 1000
+#plt.style.use('seaborn-v0_8-paper')
+plt.rcParams['savefig.dpi'] = 1000
+plt.rcParams.update({
+    'axes.titlesize': 20,
+    'axes.labelsize': 15,
+    'xtick.labelsize': 12,
+    'ytick.labelsize': 12
+})
 
 def ArgumentParser():
     parser = argparse.ArgumentParser()
@@ -43,15 +49,15 @@ def plot_sigma(
     elif probe == "TAU":
         channel = "CC+NC"
     
-    font = font_manager.FontProperties(family='sans-serif', style='normal', size=16)
+    font = font_manager.FontProperties(family='sans-serif', style='normal', size=12)
     fig, ax = plt.subplots(1, 1, figsize=(8, 6))
-    ax.plot(data_fixed["TauNorm"], np.sqrt(data_fixed["chi2"]-data_free["chi2"]), 'bo--', linewidth=2, markersize=5, label=f"Data {order} ({channel})")
-    #ax.plot(data_free["TauNorm"], np.sqrt(data_free["chi2"]), "o", c = "black")
+    ax.plot(data_fixed["TauNorm"], np.sqrt(data_fixed["chi2"]), 'bo--', linewidth=2, markersize=5, label=f"Data {order} ({channel})")
     ax.set(
         xlabel="Tau Normalization",
         ylabel="Significance ($\sigma$)",
         xlim=(0, 2),
-        title = f"Sensitivity of the Tau Normalization with {reco} reco"
+        title = f"Sensitivity of the Tau Normalization with {reco} reco",
+        ylim= (0, None)
     )
     ax.tick_params(which='major', direction="in", top=True, left=True, right=True, width=1.5, size=6)
     ax.tick_params(which='minor', direction="in", top=True, left=True, right=True, width=1, size=4)
@@ -72,6 +78,7 @@ def plot_chi2(
     elif probe == "TAU":
         channel = "CC+NC"
     
+    font = font_manager.FontProperties(family='sans-serif', style='normal', size=12)
     fig, ax = plt.subplots(1, 1, figsize=(8, 6))
     ax.plot(data_fixed["TauNorm"], data_fixed["chi2"]-data_free["chi2"], c = "black", label=f"Data {order} ({channel})")
     ax.set(
@@ -80,8 +87,9 @@ def plot_chi2(
         xlim=(0, 2),
         title = f"Sensitivity of the Tau Normalization with {reco} reco"
     )
-    ax.grid()
-    ax.legend()
+    ax.tick_params(which='major', direction="in", top=True, left=True, right=True, width=1.5, size=6)
+    ax.tick_params(which='minor', direction="in", top=True, left=True, right=True, width=1, size=4)
+    ax.legend(prop=font, frameon=False)
     fig.savefig(os.path.join(save_path, f"Chi2Plots_TauNorm_{reco}_{probe}_{order}.png"))
     
 
