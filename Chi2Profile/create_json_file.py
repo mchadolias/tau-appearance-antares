@@ -25,8 +25,8 @@ def ArgumentParser():
                         Options: MC, AAFit_dedx, AAFit_ann, NNFIT_full, NNFIT_dir")
     parser.add_argument("--order", type=str,   
                         help="Choose the mass ordering. Options: NO, IO")
-    parser.add_argument("--systematics", type=bool,
-                        help="Choose the systematics option. Options: True, False")
+    parser.add_argument("--systematics", type=str,
+                        help="Choose the systematics option. Options: 0 for no systematics, 1 for systematics")
     
     return parser.parse_args()
     
@@ -609,8 +609,8 @@ if __name__ == '__main__':
     reco = arg.reco
     order = arg.order
     systematics_flag = arg.systematics
-    
-    systematics = "systematics" if systematics_flag else "no_systematics"
+
+    systematics = "systematics" if systematics_flag == "1" else "no_systematics"
     
     if (channel is None) or (reco is None) or (order is None) or (systematics is None):
         raise ValueError("Please provide the required arguments")
