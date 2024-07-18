@@ -8,10 +8,9 @@
                 "E": "energy_recoTrue",
                 "cosT": "cos_zenith_recoTrue",
                 "By": "bjorken_y_recoTrue"
-              },
+            },
             "ClassNorm": "TrackNorm"
         },
-
         {
             "name": "showers",
             "general_cut": "(!(abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && (cos_zenith_recoTrue < 0)",
@@ -20,7 +19,7 @@
                 "E": "energy_recoTrue",
                 "cosT": "cos_zenith_recoTrue",
                 "By": "bjorken_y_recoTrue"
-              },
+            },
             "ClassNorm": "ShowerNorm"
         }
     ]
