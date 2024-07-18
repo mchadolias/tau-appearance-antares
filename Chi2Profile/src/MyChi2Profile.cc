@@ -18,8 +18,7 @@ int main(int argc, char* argv[]){
     string ordering = data["user"]["ordering"];
     string detector = data["variables"]["MClabel"];
     string reco = data["user"]["reco"];
-    string path = "output/" + detector + "/" + reco + "/" + experiment  + "/" + ordering + "/" + type ; 
-    cout << "Output folder: " << path << endl;
+    string sys_option = data["user"]["sys_option"];
 
     string method = "FitTwoOctants"; 
     if (!both_octants) method = "SimpleFit";
@@ -29,6 +28,9 @@ int main(int argc, char* argv[]){
         interval = 0;
     else
         interval = (parmax - parmin)/double(npoints-1);
+
+    string path = "output/" + detector + "/" + sys_option  + "/" + reco + "/" + experiment  + "/" + ordering + "/" + type ; 
+    cout << "Output folder: " << path << endl;
 
     for(int i=0; i<npoints; i++){
 
