@@ -1,21 +1,23 @@
 #!/bin/sh
 ### usage:
-###       ./submit.sh <DRY_RUN_FLAG> <EXPERIMENT> <ORDERING> <RECONSTRUCTION>
+###       ./submit.sh <DRY_RUN_FLAG> <CHANNEL> <ORDERING> <RECONSTRUCTION>
 ###
 ###      <DRY_RUN_FLAG> : 0 for submission to SLURM, 1 for frontend execution
-###      <EXPERIMENT>   : "STD" or "TAU"
+###      <SYSTEMATICS_FLAG> : 0 for no systematics, 1 for systematics
+###      <CHANNEL>   : "STD" or "TAU"
 ###      <ORDERING>     : "NO" or "IO"
-###      <RECONSTRUCTION>: "MC" or "NNFit" or "AAFit"
+###      <RECONSTRUCTION>: "MC" or "NNFit_full" or "NNFit_dir" or "AAFit_ann" or "AAFit_dedx"
 ###
-### example: ./submit.sh 0 STD NO MC
+### example: ./submit.sh 0 0 STD NO MC
 #
 ### set this to 1 for a DRY RUN, i.e. without submission to SLURM
 DRY_RUN=$1
-EXPERIMENT=$2 # "STD" or "TAU"
-ORDERING=$3 # "NO" or "IO"
-RECONSTRUCTION=$4 # "MC" or "NNFit" or "AAFit"
+SYSTEMATICS_FLAG=$2
+CHANNEL=$3 # "STD" or "TAU"
+ORDERING=$4 # "NO" or "IO"
+RECONSTRUCTION=$5 # "MC" or "NNFit_full" or "NNFit_dir" or "AAFit_ann" or "AAFit_dedx"
 
-if [ -z "$EXPERIMENT" ] || [ -z "$ORDERING" ] || [ -z "$RECONSTRUCTION" ]; then
+if [ -z "$CHANNEL" ] || [ -z "$ORDERING" ] || [ -z "$RECONSTRUCTION" ]; then
     echo "Please provide all the necessary arguments"
     exit
 fi
@@ -23,7 +25,8 @@ fi
 echo -e "\n--------------------"
 echo "Starting script:" $(basename $BASH_SOURCE)
 echo "DRY_RUN: $DRY_RUN"
-echo "EXPERIMENT: $EXPERIMENT"
+echo "SYSTEMATICS: $SYSTEMATICS_FLAG"
+echo "CHANNEL: $CHANNEL"
 echo "ORDERING: $ORDERING"
 echo -e "RECONSTRUCTION: $RECONSTRUCTION\n"
 
@@ -36,7 +39,7 @@ fi
 
 
 ### JOBNAME
-JOBNAME="job_chi2_${EXPERIMENT}_${ORDERING}_${RECONSTRUCTION}"
+JOBNAME="job_chi2_${CHANNEL}_${ORDERING}_${RECONSTRUCTION}"
 
 ### LOGs
 if [ ! -d ${THIS_PROJ_DIR}/logs ]; then
@@ -52,7 +55,7 @@ echo "sbatch \
 --job-name=${JOBNAME} \
 --output=logs/conv_${JOBNAME}_%j.log \
 --export=ALL,\
---EXPERIMENT=${EXPERIMENT},\
+--CHANNEL=${CHANNEL},\
 --ORDERING=${ORDERING},\
 --RECONSTRUCTION=${RECONSTRUCTION},\
          ${WORKER_SCRIPT}"
@@ -62,7 +65,8 @@ sbatch \
 --output=logs/conv_${JOBNAME}_%j.log \
 --mail-user=mchadolias@km3net.de \
 --export=ALL,\
-EXPERIMENT=${EXPERIMENT},\
+SYSTEMATICS=${SYSTEMATICS_FLAG},\
+CHANNEL=${CHANNEL},\
 ORDERING=${ORDERING},\
 RECONSTRUCTION=${RECONSTRUCTION} \
          ${WORKER_SCRIPT}
@@ -70,12 +74,12 @@ RECONSTRUCTION=${RECONSTRUCTION} \
 elif [[ "$DRY_RUN" -eq 1 ]]; then
 ### FRONTEND EXECUTION
     echo -e "FRONTEND EXECUTION \n ----------------------------------"
-    export EXPERIMENT=${EXPERIMENT} ORDERING=${ORDERING} RECONSTRUCTION=${RECONSTRUCTION}
+    export CHANNEL=${CHANNEL} ORDERING=${ORDERING} RECONSTRUCTION=${RECONSTRUCTION} SYSTEMATICS=${SYSTEMATICS_FLAG}
     ${WORKER_SCRIPT}
 else
     echo -e "Test run with following parameters: \n \
             WORKER_SCRIPT:${WORKER_SCRIPT} \n \
-            EXPERIMENT:${EXPERIMENT} \n \
+            CHANNEL:${CHANNEL} \n \
             ORDERING:${ORDERING} \n \
             RECONSTRUCTION:${RECONSTRUCTION}"
 fi
