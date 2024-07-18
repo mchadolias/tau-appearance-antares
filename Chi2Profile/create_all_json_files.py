@@ -1,6 +1,7 @@
 import json 
 import os
 from itertools import product
+import numpy as np
 
 text_conversion = {
     "STD": "Std",
@@ -537,6 +538,41 @@ def create_param_template(
                 json.dump(json_file, f, indent=4)
                 print(f"Created file: params_template_{order}.json")    
 
+def create_json_binning(
+  json_path: str,
+  nbins: int,
+):
+  energy_reco_bins = np.geomspace(10, 100, nbins)
+  json_file = {
+      "binning": {
+        "nEbinsTrue": 30,
+        "EminTrue": 1,
+        "EmaxTrue": 100,
+
+        "nEbinsReco": 20,
+        "EminReco": 10,
+        "EmaxReco": 100,
+
+        "ncosTbinsTrue": 40,
+        "ncosTbinsReco": 10,
+
+        "nBybinsTrue": 1,
+        "nBybinsReco": 1,
+
+        "custom" : True,
+        "custom_EbinsReco": energy_reco_bins.tolist()
+      }
+    }
+  
+  # Check if file already exists
+  if os.path.exists(os.path.join(json_path, f'ANTARES/binning_ANTARES.json')):
+      print(f"File already exists: binning_ANTARES.json")
+  else:
+      with open(os.path.join(json_path, f'ANTARES/binning_ANTARES.json'), 'w') as f:
+          json.dump(json_file, f, indent=4)
+          print(f"Created file: binning_ANTARES.json")
+
+        
 
 def run_json_files(
     reco_list: list,
@@ -558,6 +594,10 @@ def run_json_files(
     
     print("\nCreating JSON parameters files...")
     create_json_params(json_path, ordering_list, fixed_free_list, systematics_list)
+    
+    print("\nCreate JSON binning files...")
+    create_json_binning(json_path, 20)
+    
 
     
 if __name__ == '__main__':
