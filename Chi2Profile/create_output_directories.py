@@ -18,9 +18,7 @@ def create_directories(base_dir):
             dir_path = base_path / experiment / sys_option / reco / channel / type_ / ff
 
             # Check if the directory already exists
-            if dir_path.exists():
-                print(f"Folder already exists: {dir_path}")
-            else:
+            if not dir_path.exists():
                 dir_path.mkdir(parents=True, exist_ok=True)
                 print(f"Created directory: {dir_path}")
 
