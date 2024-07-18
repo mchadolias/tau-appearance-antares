@@ -7,8 +7,10 @@
 cd $WORK/master_thesis/tau_appearance/Chi2Profile
 
 # Remove the output directory
-rm -r output
+rm -r output 
+rm -r json 
 
-python3 create_directories.py
+python3 create_output_directories.py
+python3 create_json_files.py
 
 echo -e "\nFinished cleaning the output of the Chi2Profile code"
