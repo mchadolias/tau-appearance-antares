@@ -150,7 +150,7 @@ def sigma_plots(
     
     print(f"\nPlotting sigma plots for {type}...")
     if type == "reconstruction":
-        recos = ["MC", "AAFit", "NNFit"]
+        recos = ["MC", "AAFit_dedx", "AAFit_aan", "NNFit_full", "NNFit_dir"]
         
         fig, ax = plt.subplots(1, 1, figsize=(10, 8))
         for reco, order in product(recos, ordering):
@@ -190,7 +190,7 @@ def sigma_plots(
         fig.savefig(os.path.join(save_path, f"SigmaPlots_{type}_{reco}.png"))
     elif type == "ordering":
         probes = ["STD", "TAU"]
-        recos = ["MC", "AAFit", "NNFit"]
+        recos = ["MC", "AAFit_dedx", "AAFit_aan", "NNFit_full", "NNFit_dir"]
         
         for order in ordering:
             fig, ax = plt.subplots(1, 1, figsize=(10, 8)) 

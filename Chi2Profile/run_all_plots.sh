@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Run plotter for all possible combinations of experiment, ordering and reconstruction
-RECOS=("MC" "NNFit" "AAFit")
+RECOS=("MC" "NNFit_full" "NNFit_dir" "AAFit_ann" "AAFit_dedx")
 CHANNELS=("STD" "TAU")
 ORDERINGS=("NO" "IO")
 
