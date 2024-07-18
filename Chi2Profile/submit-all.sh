@@ -5,21 +5,22 @@
 # Usage: ./submit-all.sh 
 
 # <DRY_RUN_FLAG> : 0 for submission to SLURM, 1 for frontend execution
-# <EXPERIMENT>   : "STD" or "TAU"
+# <SYSTEMATICS_FLAG> : 0 for no systematics, 1 for systematics
+# <CHANNEL>   : "STD" or "TAU"
 # <ORDERING>     : "NO" or "IO"
 # <RECONSTRUCTION>: "MC" or "NNFit" or "AAFit"
 
-EXPERIMENT=("STD" "TAU")
+CHANNEL=("STD" "TAU")
 ORDERING=("NO" "IO")
-RECONSTRUCTION=("MC" "NNFit" "AAFit")
+RECONSTRUCTION=("MC" "NNFit_full" "NNFit_dir" "AAFit_ann" "AAFit_dedx")
 
 COUNTER=1
-for EXP in "${EXPERIMENT[@]}"; do
+for CHAN in "${CHANNEL[@]}"; do
     for ORD in "${ORDERING[@]}"; do
         for REC in "${RECONSTRUCTION[@]}"; do
             echo -e "\n--------------------"
-            echo -e "Submitting job number ${COUNTER} for $EXP $ORD $REC"
-            ./submit.sh 0 $EXP $ORD $REC
+            echo -e "Submitting job number ${COUNTER} for $CHAN $ORD $REC"
+            ./submit.sh 0 0 $CHAN $ORD $REC
             COUNTER=$((COUNTER+1))
         done
     done
