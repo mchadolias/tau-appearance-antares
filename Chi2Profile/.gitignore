@@ -1,7 +1,7 @@
 output
+json
 *.root
 logs
-json/ORCA
 bin
 EffMass
 plots
