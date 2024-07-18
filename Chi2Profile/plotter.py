@@ -5,9 +5,10 @@ import uproot
 import argparse
 from itertools import product
 import os
+import scienceplots
 
 # Set the style of the plots
-plt.style.use('seaborn-v0_8-paper')
+plt.style.use(['science', "grid"])    
 plt.rcParams['savefig.dpi'] = 1000
 plt.rcParams.update({
     'axes.titlesize': 20,
@@ -15,6 +16,16 @@ plt.rcParams.update({
     'xtick.labelsize': 12,
     'ytick.labelsize': 12
 })
+
+text_conversion = {
+    "STD": "CC",
+    "TAU": "NC+CC",
+    "NO": "Normal Ordering",
+    "IO": "Inverted Ordering",
+    "MC": "MC",
+    "AAFit": "AAFit",
+    "NNFit": "NNFit"
+}
 
 def ArgumentParser():
     parser = argparse.ArgumentParser(description='Plotter for chi2 profile')
@@ -27,6 +38,9 @@ def ArgumentParser():
     parser.add_argument('--path', type=str, 
                         default="/sps/km3net/users/mchadoli/master_thesis/tau_appearance/Chi2Profile/output/ANTARES/",
                         help="Path to the root files")
+    parser.add_argument('--save_path', type=str,
+                        default="/sps/km3net/users/mchadoli/master_thesis/tau_appearance/Chi2Profile/plots/merged",
+                        help="Path to save the plots")
     args = parser.parse_args()
     return args
 
@@ -42,7 +56,7 @@ def load_chi2_data(
     probe,
     order,
     path,
-    ):
+):
     # Load the data
     print(f"Loading data for {reco} {probe} {order}...")
     data_fixed = _root_to_tables(os.path.join(path, reco, probe, order,
@@ -57,8 +71,7 @@ def plot_chi2(
     path,
     probe,
     reco,
-    save_path = "/sps/km3net/users/mchadoli/master_thesis/tau_appearance/Chi2Profile/plots/merged",
-    ):
+):
     
     # Define the mass ordering
     ordering = ["NO", "IO"]
@@ -74,7 +87,7 @@ def plot_chi2(
         for reco, order in product(recos, ordering):
             data_fixed, data_free = load_chi2_data(reco, probe, order, path)
             ax.plot(data_fixed["TauNorm"], data_fixed["chi2"] - data_free["chi2"], 
-                    'o--', linewidth=2, markersize=5, label=f"{reco} {order}")
+                    'o--', linewidth=2, markersize=5, label=f"{text_conversion[reco]} {text_conversion[order]}")
         ax.set(
             xlabel="Tau Normalization",
             ylabel="$\Delta \chi^2$",
@@ -92,7 +105,7 @@ def plot_chi2(
         for order, probe in product(ordering, probes):
             data_fixed, data_free = load_chi2_data(reco, probe, order, path)   
             ax.plot(data_fixed["TauNorm"], data_fixed["chi2"] - data_free["chi2"], 
-                    'o--', linewidth=2, markersize=5, label=f"{probe} {order}")
+                    'o--', linewidth=2, markersize=5, label=f"{text_conversion[order]} ({text_conversion[probe]})")   
         ax.set(
             xlabel="Tau Normalization",
             ylabel="$\Delta \chi^2$",
@@ -111,7 +124,7 @@ def plot_chi2(
             for reco, probe in product(recos, probes):
                 data_fixed, data_free = load_chi2_data(reco, probe, order, path)   
                 ax.plot(data_fixed["TauNorm"], data_fixed["chi2"] - data_free["chi2"], 
-                        'o--', linewidth=2, markersize=5, label=f"{probe} {order}")
+                        'o--', linewidth=2, markersize=5, label=f"{text_conversion[reco]} ({text_conversion[probe]})")
             ax.set(
                 xlabel="Tau Normalization",
                 ylabel="$\Delta \chi^2$",
@@ -127,10 +140,9 @@ def sigma_plots(
     path,
     probe,
     reco,
-    save_path = "/sps/km3net/users/mchadoli/master_thesis/tau_appearance/Chi2Profile/plots/merged",
-    ):
+):
     
-    # Define the mass ordering
+    # Define the mass ordering        
     ordering = ["NO", "IO"]
     
     # Define the font for legend
@@ -145,6 +157,10 @@ def sigma_plots(
             data_fixed, data_free = load_chi2_data(reco, probe, order, path)
             ax.plot(data_fixed["TauNorm"], np.sqrt(data_fixed["chi2"]), 
                     'o--', linewidth=2, markersize=5, label=f"{reco} {order}")
+        ax.axhline(y=3, linestyle='--', c = "black")
+        ax.text(0.1, 3.15, "3$\sigma$ line",  fontsize=10)
+        ax.axhline(y=5, linestyle='--', c = "black")
+        ax.text(0.1, 5.15, "5$\sigma$ line", fontsize=10)
         ax.set(
             xlabel="Tau Normalization",
             ylabel="Significance ($\sigma$)",
@@ -201,6 +217,7 @@ if __name__ == '__main__':
     path = args.path
     reco = args.reco
     probe = args.probe
+    save_path = args.save_path
     
     
     if type ==  "reconstruction":
@@ -209,12 +226,19 @@ if __name__ == '__main__':
     elif type == "study":
         if reco is None:
             raise ValueError("Please provide the reconstruction algorithm")
+        
+    # Check if the paths exist
+    if not os.path.exists(path):
+        raise ValueError("The path for the files does not exist")
+    if not os.path.exists(save_path):
+        print("The path to save the plots does not exist. Creating the directory...")
+        os.makedirs(save_path)
     
     # Plotting the chi2 profile
-    plot_chi2(type, path, probe, reco)
+    plot_chi2(type, path, probe, reco, save_path)
     
     # Plotting the significance
-    sigma_plots(type, path, probe, reco)
+    sigma_plots(type, path, probe, reco, save_path)
     
     
     

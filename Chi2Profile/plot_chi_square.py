@@ -5,9 +5,10 @@ import uproot
 import os
 import argparse
 import numpy as np
+import scienceplots
 
 # Set the style of the plots
-#plt.style.use('seaborn-v0_8-paper')
+plt.style.use(['science', "grid"])    
 plt.rcParams['savefig.dpi'] = 1000
 plt.rcParams.update({
     'axes.titlesize': 20,
@@ -25,6 +26,9 @@ def ArgumentParser():
                         help="Choose the ordering of the neutrino mass hierarchy")
     parser.add_argument("--probe", type=str, default="STD",
                         help="Choose which channel to probe. STD corresponds to CC and TAU corresponds to NC")
+    parser.add_argument("--save_path", type=str, 
+                        default="/sps/km3net/users/mchadoli/master_thesis/tau_appearance/Chi2Profile/plots/individual",
+                        help="Path to save the plots")
     args = parser.parse_args()
     return args
     
@@ -41,8 +45,8 @@ def plot_sigma(
     reco,
     probe,
     order,
-    save_path = "/sps/km3net/users/mchadoli/master_thesis/tau_appearance/Chi2Profile/plots",
-    ):
+    save_path,
+):
     
     if probe == "STD":
         channel = "CC-only"
@@ -51,7 +55,11 @@ def plot_sigma(
     
     font = font_manager.FontProperties(family='sans-serif', style='normal', size=12)
     fig, ax = plt.subplots(1, 1, figsize=(8, 6))
-    ax.plot(data_fixed["TauNorm"], np.sqrt(data_fixed["chi2"]), 'bo--', linewidth=2, markersize=5, label=f"Data {order} ({channel})")
+    ax.plot(data_fixed["TauNorm"], np.sqrt(data_fixed["chi2"]), 'o--', linewidth=2, markersize=5, label=f"Data {order} ({channel})")
+    ax.axhline(y=3, linestyle='--', c = "black")
+    ax.text(0.1, 3.15, "3$\sigma$ line",  fontsize=10)
+    ax.axhline(y=5, linestyle='--', c = "black")
+    ax.text(0.1, 5.15, "5$\sigma$ line", fontsize=10)
     ax.set(
         xlabel="Tau Normalization",
         ylabel="Significance ($\sigma$)",
@@ -70,8 +78,8 @@ def plot_chi2(
     reco,
     probe,
     order,
-    save_path = "/sps/km3net/users/mchadoli/master_thesis/tau_appearance/Chi2Profile/plots",
-    ):
+    save_path
+):
     
     if probe == "STD":
         channel = "CC-only"
@@ -101,6 +109,11 @@ if __name__ == '__main__':
     reco = args.reco
     ordering = args.ordering
     probe = args.probe
+    save_path = args.save_path
+    
+    if not os.path.exists(save_path):
+        print(f"Creating directory {save_path}")
+        os.makedirs(save_path)
 
     print(f"=============== Loading Data ===============")
     data_free = _root_to_tables(os.path.join(directory, reco, probe, ordering, f"free/Chi2Profile_TauNorm_{probe}_{ordering}_free_FitTwoOctants.root"))
