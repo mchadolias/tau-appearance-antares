@@ -11,6 +11,6 @@ rm -r output
 rm -r json 
 
 python3 create_output_directories.py
-python3 create_json_files.py
+python3 create_all_json_files.py
 
 echo -e "\nFinished cleaning the output of the Chi2Profile code"
