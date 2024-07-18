@@ -19,11 +19,9 @@ for CHANNEL in "${CHANNELS[@]}"; do
 done
 
 echo "Running for different orderings"
-for ORDERING in "${ORDERINGS[@]}"; do
-    echo -e "\n--------------------"
-    echo -e "Run python script for $ORDERING"
-    python3 plotter.py --type ordering --ordering $ORDERING
-done
+echo -e "\n--------------------"
+echo -e "Run python script for $ORDERING"
+python3 plotter.py --type ordering 
 
 echo "Running for different channels"
 for RECO in "${RECOS[@]}"; do
