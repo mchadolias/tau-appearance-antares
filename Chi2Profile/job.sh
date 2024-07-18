@@ -17,7 +17,7 @@ cd $WORK/master_thesis/tau_appearance/Chi2Profile
 # Load modules python
 module load python
 
-python3 create_json_file.py --channel $CHANNEL --order $ORDERING  --reco $RECONSTRUCTION --systematics $SYSTEMATICS
+python3 create_json_file.py --channel $CHANNEL --order $ORDERING  --reco $RECONSTRUCTION --systematics "$SYSTEMATICS"
 python3 create_output_directories.py
 
 # Load modules
@@ -41,7 +41,6 @@ echo "SYSTEMATICS: $SYSTEMATICS"
 
 # Define binning json file
 BINNING="./json/ANTARES/binning_ANTARES.json"
-#BINNING="./json/ANTARES/binning_ANTARES_EffMass.json"
 
 # Define variables json file
 if [ $CHANNEL == "STD" ]; then
@@ -102,7 +101,7 @@ fi
 # --------------- Free ----------------
 echo "Running MyChi2Profile with TauNorm parameter free"
 echo "Parameters: $BINNING $CLASSES $VARIABLES $PARAMS $USER"
-#./bin/MyChi2Profile  $BINNING $CLASSES $VARIABLES $PARAMS $USER
+./bin/MyChi2Profile  $BINNING $CLASSES $VARIABLES $PARAMS $USER
 
 
 # --------------- Fixed ----------------
@@ -136,7 +135,7 @@ else
     USER="./json/USER/User_${RECONSTRUCTION}_${CHANNEL}_${ORDERING}_fixed_no_systematics.json"
 fi
 
-#./bin/MyChi2Profile  $BINNING $CLASSES $VARIABLES $PARAMS $USER
+./bin/MyChi2Profile  $BINNING $CLASSES $VARIABLES $PARAMS $USER
 
 # Plotting the Chi-Square profile
 echo "Plotting the Chi-Square profile"
@@ -146,6 +145,6 @@ WORKDIR="/sps/km3net/users/mchadoli/master_thesis/tau_appearance/Chi2Profile"
 
 cd ${WORKDIR}
 
-#python3 plot_chi_square.py --probe $CHANNEL --ordering $ORDERING --reco $RECONSTRUCTION
+python3 plot_chi_square.py --probe $CHANNEL --ordering $ORDERING --reco $RECONSTRUCTION
 
 echo "============ Finished ============"
