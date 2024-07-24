@@ -12,6 +12,7 @@ def create_directories(base_dir):
     # Create the base directory
     base_path = Path(base_dir)
 
+    counter = 0
     # Generate all combinations using itertools.product
     for sys_option in ("systematics", "no_systematics"):
         for reco, channel, type_, ff, experiment in product(reco_list, channel_list, type_list, fixed_free_list, experiment_list):
@@ -21,7 +22,13 @@ def create_directories(base_dir):
             if not dir_path.exists():
                 dir_path.mkdir(parents=True, exist_ok=True)
                 print(f"Created directory: {dir_path}")
-
+                counter += 1
+    
+    if counter == 0:
+        print("\nAll directories already exist.")
+    else:
+        print(f"\nCreated {counter} directories.")
+        
 if __name__ == '__main__':
     # Specify the base directory
     base_directory = 'output'
