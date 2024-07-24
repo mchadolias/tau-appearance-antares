@@ -21,15 +21,18 @@ def create_json_User(
     ordering_list: list,
     fixed_free_list: list,
     json_path: str,
+    sys_option_list: list
 ):
-    # Create the base directory
-    sys_option_list = ("systematics", "no_systematics")
     
     # Generate all combinations using itertools.product
     for reco, experiment, order, ff, sys_option in product(reco_list, channel_list, ordering_list, fixed_free_list, sys_option_list):
+        if sys_option == 'systematics':
+          npoints = 15
+        else:
+          npoints = 21
         
         if ff == 'fixed':
-            npoints = 21
+            npoints = npoints
             parmin = 0.0
             parmax = 2.0
         elif ff == 'free':
@@ -584,7 +587,7 @@ def run_json_files(
 ):
     # Create the json files
     print("Creating JSON User files...")
-    create_json_User(reco_list, channel_list, ordering_list, fixed_free_list, json_path)
+    create_json_User(reco_list, channel_list, ordering_list, fixed_free_list, json_path, systematics_list)
 
     print("\nCreating JSON variables files...")
     create_json_variables(channel_list, json_path)
@@ -616,6 +619,12 @@ if __name__ == '__main__':
         os.makedirs(os.path.join(json_path, 'USER'))
         os.makedirs(os.path.join(json_path, 'ANTARES'))
         os.makedirs(os.path.join(json_path, 'PARAMETERS'))
-    
+    elif not os.path.exists(os.path.join(json_path, 'USER')):
+        os.makedirs(os.path.join(json_path, 'USER'))
+    elif not os.path.exists(os.path.join(json_path, 'ANTARES')):
+        os.makedirs(os.path.join(json_path, 'ANTARES'))
+    elif not os.path.exists(os.path.join(json_path, 'PARAMETERS')):
+        os.makedirs(os.path.join(json_path, 'PARAMETERS'))
+               
     run_json_files(reco_list, channel_list, ordering_list, fixed_free_list, systematics_list, json_path)
     

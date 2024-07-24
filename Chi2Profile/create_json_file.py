@@ -36,11 +36,12 @@ def create_json_User(
     channel: str,
     systematics: str,
     json_path: str,
+    npoints: int = 21,
 ):
     # Create the base directory
     for ff in ("fixed", "free"):
         if ff == 'fixed':
-            npoints = 21
+            npoints = npoints
             parmin = 0.0
             parmax = 2.0
         elif ff == 'free':
@@ -243,8 +244,8 @@ def create_json_params(
                 print(f"Created file: parameters_Data_NO_Model_{order}_{ff}_{systematics}.json")
     
     # Remove the template file
-    print(f"Removing template file: params_template_{order}.json")   
-    os.remove(os.path.join(json_path, f'PARAMETERS/params_template_{order}.json'))
+    #print(f"Removing template file: params_template_{order}.json")   
+    #os.remove(os.path.join(json_path, f'PARAMETERS/params_template_{order}.json'))
 
 def create_param_template(
     json_path: str,
@@ -582,11 +583,12 @@ def run_json_files(
     reco: str,
     order: str,
     systematics: str,    
-    json_path: str
+    json_path: str,
+    npoints: int,
 ):
     # Create the json files
     print("Creating JSON User files...")
-    create_json_User(reco, order, channel, systematics, json_path)
+    create_json_User(reco, order, channel, systematics, json_path, npoints)
 
     print("\nCreating JSON variables files...")
     create_json_variables(channel, json_path)
@@ -608,9 +610,9 @@ if __name__ == '__main__':
     channel = arg.channel
     reco = arg.reco
     order = arg.order
-    systematics_flag = arg.systematics
-
-    systematics = "systematics" if systematics_flag == "1" else "no_systematics"
+    systematics = arg.systematics
+    
+    systematics = "systematics" if systematics == "1" else "no_systematics"
     
     if (channel is None) or (reco is None) or (order is None) or (systematics is None):
         raise ValueError("Please provide the required arguments")
@@ -624,5 +626,16 @@ if __name__ == '__main__':
         os.makedirs(os.path.join(json_path, 'USER'))
         os.makedirs(os.path.join(json_path, 'ANTARES'))
         os.makedirs(os.path.join(json_path, 'PARAMETERS'))
+    elif not os.path.exists(os.path.join(json_path, 'USER')):
+        os.makedirs(os.path.join(json_path, 'USER'))
+    elif not os.path.exists(os.path.join(json_path, 'ANTARES')):
+        os.makedirs(os.path.join(json_path, 'ANTARES'))
+    elif not os.path.exists(os.path.join(json_path, 'PARAMETERS')):
+        os.makedirs(os.path.join(json_path, 'PARAMETERS'))
+        
+    if systematics == "no_systematics":
+      npoints = 21
+    elif systematics == "systematics":
+      npoints = 15
     
-    run_json_files(channel, reco, order, systematics, json_path)
+    run_json_files(channel, reco, order, systematics, json_path, npoints)
