@@ -24,7 +24,11 @@ text_conversion = {
     "IO": "Inverted Ordering",
     "MC": "MC",
     "AAFit": "AAFit",
-    "NNFit": "NNFit"
+    "NNFit": "NNFit",
+    "AAFit_dedx": "AAFit dedx",
+    "AAFit_ann": "AAFit ANN",
+    "NNFit_full": "NNFit",
+    "NNFit_dir": "NNFit direction reco only"
 }
 
 def ArgumentParser():
@@ -33,14 +37,13 @@ def ArgumentParser():
                         help="Select type of plot to be made: reconstruction or study")
     parser.add_argument('--reco', type=str, 
                         help="Choose the reconstruction algorithm used to reconstruct the events")
-    parser.add_argument('--probe', type=str,
-                        help="Choose which channel to probe. STD corresponds to CC and TAU corresponds to NC")
+    parser.add_argument('--channel', type=str,
+                        help="Choose which channel to channel. STD corresponds to CC and TAU corresponds to NC")
     parser.add_argument('--path', type=str, 
-                        default="/sps/km3net/users/mchadoli/master_thesis/tau_appearance/Chi2Profile/output/ANTARES/",
+                        default="/sps/km3net/users/mchadoli/master_thesis/tau_appearance/Chi2Profile/",
                         help="Path to the root files")
-    parser.add_argument('--save_path', type=str,
-                        default="/sps/km3net/users/mchadoli/master_thesis/tau_appearance/Chi2Profile/plots/merged",
-                        help="Path to save the plots")
+    parser.add_argument('--systematic', type=str, default="no_systematics",
+                        help="Choose if the systematic uncertainties are included or not")
     args = parser.parse_args()
     return args
 
@@ -53,162 +56,150 @@ def _root_to_tables(root_file, tree_name = "outTree", columns = ["chi2","TauNorm
 
 def load_chi2_data(
     reco,
-    probe,
+    channel,
     order,
     path,
 ):
     # Load the data
-    print(f"Loading data for {reco} {probe} {order}...")
-    data_fixed = _root_to_tables(os.path.join(path, reco, probe, order,
-                                        f"fixed/Chi2Profile_TauNorm_{probe}_{order}_fixed_FitTwoOctants.root"))
-    data_free = _root_to_tables(os.path.join(path, reco, probe, order,
-                                        f"free/Chi2Profile_TauNorm_{probe}_{order}_free_FitTwoOctants.root"))
+    print(f"Loading data for {reco} {channel} {order}...")
+    data_fixed = _root_to_tables(os.path.join(path, reco, channel, order,
+                                        f"fixed/Chi2Profile_TauNorm_{channel}_{order}_fixed_FitTwoOctants.root"))
+    data_free = _root_to_tables(os.path.join(path, reco, channel, order,
+                                        f"free/Chi2Profile_TauNorm_{channel}_{order}_free_FitTwoOctants.root"))
     
     return data_fixed, data_free
+
+def square_root(
+    data_list: list,
+):
+    return [np.sqrt(x) if x > 0 else 0 for x in data_list]
 
 def plot_chi2(
     type,
     path,
-    probe,
+    channel,
     reco,
+    save_path,
 ):
     
     # Define the mass ordering
     ordering = ["NO", "IO"]
     
     # Define the font for legend
-    font = font_manager.FontProperties(family='sans-serif', style='normal', size=12)
+    font = font_manager.FontProperties(family='sans-serif', style='normal', size=10)
     
     print(f"Plotting {type}...")
     if type == "reconstruction":
-        recos = ["MC", "AAFit", "NNFit"]
-        
+        recos = ["MC", "AAFit_dedx", "AAFit_ann", "NNFit_full", "NNFit_dir"]
+        ordering = ["NO"] # temporary
         fig, ax = plt.subplots(1, 1, figsize=(10, 8))
-        for reco, order in product(recos, ordering):
-            data_fixed, data_free = load_chi2_data(reco, probe, order, path)
-            ax.plot(data_fixed["TauNorm"], data_fixed["chi2"] - data_free["chi2"], 
-                    'o--', linewidth=2, markersize=5, label=f"{text_conversion[reco]} {text_conversion[order]}")
-        ax.set(
-            xlabel="Tau Normalization",
-            ylabel="$\Delta \chi^2$",
-            xlim=(0, 2),
-            title = f"Chi2 profile for different reconstructions",
-            #yscale = "log"
-        )
+        for order in ordering:
+            zoomed_ax = fig.add_axes([0.5, 0.5, 0.39, 0.36])
+            for reco in recos:
+                data_fixed, data_free = load_chi2_data(reco, channel, order, path)
+                ax.plot(data_fixed["TauNorm"], data_fixed["chi2"] - data_free["chi2"], 
+                        'o', markersize=7, label=f"{text_conversion[reco]} {text_conversion[order]}")
+                zoomed_ax.plot(data_fixed["TauNorm"], data_fixed["chi2"] - data_free["chi2"],
+                                 'o--', linewidth=2, markersize=5)
+            zoomed_ax.set(
+                xlim = (0, 2),
+                ylim = (0, 100),
+            )
+            ax.set(
+                xlabel="Tau Normalization",
+                ylabel="$\Delta \chi^2$",
+                xlim=(0, 2),
+                title = f"Chi2 profile for {text_conversion[channel]} channel and \
+                {text_conversion[order]}",
+                ylim = (0, 750),
+            )
         ax.legend(prop=font, frameon=False)
-        fig.savefig(os.path.join(save_path, f"Chi2Profile_{type}_{probe}.png"))
+        fig.savefig(os.path.join(save_path, f"Chi2Profile_{type}_{channel}_{order}.png"))
         
     elif type == "study":
-        probes = ["STD", "TAU"]
+        channels = ["STD", "TAU"]
         
-        fig, ax = plt.subplots(1, 1, figsize=(10, 8)) 
-        for order, probe in product(ordering, probes):
-            data_fixed, data_free = load_chi2_data(reco, probe, order, path)   
+        fig, ax = plt.subplots(1, 1, figsize=(10, 8))
+        zoomed_ax = fig.add_axes([0.5, 0.5, 0.39, 0.36]) 
+        for order, channel in product(ordering, channels):
+            data_fixed, data_free = load_chi2_data(reco, channel, order, path)   
             ax.plot(data_fixed["TauNorm"], data_fixed["chi2"] - data_free["chi2"], 
-                    'o--', linewidth=2, markersize=5, label=f"{text_conversion[order]} ({text_conversion[probe]})")   
+                    'o', markersize=7, label=f"{text_conversion[order]} ({text_conversion[channel]})")
+            zoomed_ax.plot(data_fixed["TauNorm"], data_fixed["chi2"] - data_free["chi2"],
+                            'o--', linewidth=2, markersize=5)
         ax.set(
             xlabel="Tau Normalization",
             ylabel="$\Delta \chi^2$",
             xlim=(0, 2),
             title = f"Chi2 profile for {reco} reco",
-            ylim= (0, None)
+            ylim= (0, 100)
         )
         ax.legend(prop=font, frameon=False)
         fig.savefig(os.path.join(save_path, f"Chi2Profile_{type}_{reco}.png"))
-    elif type == "ordering":
-        probes = ["STD", "TAU"]
-        recos = ["MC", "AAFit", "NNFit"]
-        
-        for order in ordering:
-            fig, ax = plt.subplots(1, 1, figsize=(10, 8)) 
-            for reco, probe in product(recos, probes):
-                data_fixed, data_free = load_chi2_data(reco, probe, order, path)   
-                ax.plot(data_fixed["TauNorm"], data_fixed["chi2"] - data_free["chi2"], 
-                        'o--', linewidth=2, markersize=5, label=f"{text_conversion[reco]} ({text_conversion[probe]})")
-            ax.set(
-                xlabel="Tau Normalization",
-                ylabel="$\Delta \chi^2$",
-                xlim=(0, 2),
-                title = f"Chi2 profile for {reco} reco",
-                ylim= (0, None)
-            )
-            ax.legend(prop=font, frameon=False)
-            fig.savefig(os.path.join(save_path, f"Chi2Profile_{type}_{order}.png"))
             
 def sigma_plots(
     type,
     path,
-    probe,
+    channel,
     reco,
+    save_path,
 ):
     
     # Define the mass ordering        
     ordering = ["NO", "IO"]
     
     # Define the font for legend
-    font = font_manager.FontProperties(family='sans-serif', style='normal', size=12)
+    font = font_manager.FontProperties(family='sans-serif', style='normal', size=10)
     
     print(f"\nPlotting sigma plots for {type}...")
     if type == "reconstruction":
-        recos = ["MC", "AAFit_dedx", "AAFit_aan", "NNFit_full", "NNFit_dir"]
-        
+        recos = ["MC", "AAFit_dedx", "AAFit_ann", "NNFit_full", "NNFit_dir"]
+        ordering = ["NO"] # temporary
+
         fig, ax = plt.subplots(1, 1, figsize=(10, 8))
-        for reco, order in product(recos, ordering):
-            data_fixed, data_free = load_chi2_data(reco, probe, order, path)
-            ax.plot(data_fixed["TauNorm"], np.sqrt(data_fixed["chi2"]), 
-                    'o--', linewidth=2, markersize=5, label=f"{reco} {order}")
-        ax.axhline(y=3, linestyle='--', c = "black")
-        ax.text(0.1, 3.15, "3$\sigma$ line",  fontsize=10)
-        ax.axhline(y=5, linestyle='--', c = "black")
-        ax.text(0.1, 5.15, "5$\sigma$ line", fontsize=10)
-        ax.set(
-            xlabel="Tau Normalization",
-            ylabel="Significance ($\sigma$)",
-            xlim=(0, 2),
-            title = f"Sensitivity of Tau Normalization for different reconstructions",
-            #yscale = "log"
-        )
-        ax.legend(prop=font, frameon=False)
-        fig.savefig(os.path.join(save_path, f"SigmaPlots_{type}_{probe}.png"))
+        for order in ordering:
+            for reco, order in product(recos, ordering):
+                data_fixed, data_free = load_chi2_data(reco, channel, order, path)
+                ax.plot(data_fixed["TauNorm"], square_root(data_fixed["chi2"] - data_free["chi2"]), 
+                        'o--', linewidth=2, markersize=4, label=f"{text_conversion[reco]}")
+            ax.axhline(y=3, linestyle='--', c = "black")
+            #ax.text(0.1, 3.15, "3$\sigma$ line",  fontsize=10)
+            ax.axhline(y=5, linestyle='-.', c = "black")
+            #ax.text(0.1, 5.15, "5$\sigma$ line", fontsize=10)
+            ax.set(
+                xlabel="Tau Normalization",
+                ylabel="Significance ($\sigma$)",
+                xlim=(0, 2),
+                title = f"Sensitivity of Tau Normalization for {text_conversion[channel]} channel and \
+                {text_conversion[order]}",
+                ylim = (0, 30),
+            )
+            ax.legend(prop=font, frameon=False)
+            fig.savefig(os.path.join(save_path, f"SigmaPlots_{type}_{channel}_{order}.png"))
         
     elif type == "study":
-        probes = ["STD", "TAU"]
+        channels = ["STD", "TAU"]
         
         fig, ax = plt.subplots(1, 1, figsize=(10, 8)) 
-        for order, probe in product(ordering, probes):
-            data_fixed, data_free = load_chi2_data(reco, probe, order, path)   
-            ax.plot(data_fixed["TauNorm"], np.sqrt(data_fixed["chi2"]), 
-                    'o--', linewidth=2, markersize=5, label=f"{probe} {order}")
+        for order, channel in product(ordering, channels):
+            data_fixed, data_free = load_chi2_data(reco, channel, order, path)   
+            diff = data_fixed["chi2"] - data_free["chi2"]
+            square_diff = [np.sqrt(x) if x > 0 else 0 for x in diff]
+            ax.plot(data_fixed["TauNorm"], square_diff, 
+                    'o--', linewidth=2, markersize=5, label=f"{text_conversion[order]} ({text_conversion[channel]})")
+        ax.axhline(y=3, linestyle='--', c = "black")
+        #ax.text(0.1, 3.15, "3$\sigma$ line",  fontsize=10)
+        ax.axhline(y=5, linestyle='-.', c = "black")
+        #ax.text(0.1, 5.15, "5$\sigma$ line", fontsize=10)
         ax.set(
             xlabel="Tau Normalization",
             ylabel="Significance ($\sigma$)",
             xlim=(0, 2),
             title = f"Sensitivity of Tau Normalization for {reco} reco",
-            ylim= (0, None)
+            ylim= (0, 30)
         )
         ax.legend(prop=font, frameon=False)
         fig.savefig(os.path.join(save_path, f"SigmaPlots_{type}_{reco}.png"))
-    elif type == "ordering":
-        probes = ["STD", "TAU"]
-        recos = ["MC", "AAFit_dedx", "AAFit_aan", "NNFit_full", "NNFit_dir"]
-        
-        for order in ordering:
-            fig, ax = plt.subplots(1, 1, figsize=(10, 8)) 
-            for reco, probe in product(recos, probes):
-                data_fixed, data_free = load_chi2_data(reco, probe, order, path)   
-                ax.plot(data_fixed["TauNorm"], np.sqrt(data_fixed["chi2"]), 
-                        'o--', linewidth=2, markersize=5, label=f"{probe} {order}")
-            ax.set(
-                xlabel="Tau Normalization",
-                ylabel="Significance ($\sigma$)",
-                xlim=(0, 2),
-                title = f"Sensitivity of Tau Normalization for {order} ordering",
-                ylim= (0, None)
-            )
-            ax.legend(prop=font, frameon=False)
-            fig.savefig(os.path.join(save_path, f"SigmaPlots_{type}_{order}.png"))
-
-
 
 if __name__ == '__main__':
     
@@ -216,13 +207,15 @@ if __name__ == '__main__':
     type = args.type
     path = args.path
     reco = args.reco
-    probe = args.probe
-    save_path = args.save_path
+    channel = args.channel
+    systematic = args.systematic
     
+    rootpath =  os.path.join(path, f"output/ANTARES/{systematic}")
+    save_path = os.path.join(path, f"plots/{systematic}/merged")
     
     if type ==  "reconstruction":
-        if probe is None:
-            raise ValueError("Please provide the probe channel")
+        if channel is None:
+            raise ValueError("Please provide the channel channel")
     elif type == "study":
         if reco is None:
             raise ValueError("Please provide the reconstruction algorithm")
@@ -235,10 +228,10 @@ if __name__ == '__main__':
         os.makedirs(save_path)
     
     # Plotting the chi2 profile
-    plot_chi2(type, path, probe, reco, save_path)
+    plot_chi2(type, rootpath, channel, reco, save_path)
     
     # Plotting the significance
-    sigma_plots(type, path, probe, reco, save_path)
+    sigma_plots(type, rootpath, channel, reco, save_path)
     
     
     

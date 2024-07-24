@@ -17,18 +17,28 @@ plt.rcParams.update({
     'ytick.labelsize': 12
 })
 
+text_conversion = {
+    "STD": "CC",
+    "TAU": "NC+CC",
+    "NO": "Normal Ordering",
+    "IO": "Inverted Ordering",
+    "MC": "MC",
+    "AAFit": "AAFit",
+    "NNFit": "NNFit"
+}
+
 def ArgumentParser():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--directory", type=str, default="/sps/km3net/users/mchadoli/master_thesis/tau_appearance/Chi2Profile/output/ANTARES/")
+    parser.add_argument("--directory", type=str, default="/sps/km3net/users/mchadoli/master_thesis/tau_appearance/Chi2Profile/",
+                        help="Path to the project directory")
     parser.add_argument("--reco", type=str, default="MC",
                         help="Choose the reconstruction algorithm used to reconstruct the events")
     parser.add_argument("--ordering", type=str, default="NO",
                         help="Choose the ordering of the neutrino mass hierarchy")
-    parser.add_argument("--probe", type=str, default="STD",
-                        help="Choose which channel to probe. STD corresponds to CC and TAU corresponds to NC")
-    parser.add_argument("--save_path", type=str, 
-                        default="/sps/km3net/users/mchadoli/master_thesis/tau_appearance/Chi2Profile/plots/individual",
-                        help="Path to save the plots")
+    parser.add_argument("--channel", type=str, default="STD",
+                        help="Choose which channel to channel. STD corresponds to CC and TAU corresponds to NC")
+    parser.add_argument("--systematic", type=str, default="no_systematics",
+                        help="Choose if the systematic uncertainties are included or not")
     args = parser.parse_args()
     return args
     
@@ -43,62 +53,55 @@ def plot_sigma(
     data_free,
     data_fixed,
     reco,
-    probe,
+    channel,
     order,
     save_path,
 ):
     
-    if probe == "STD":
-        channel = "CC-only"
-    elif probe == "TAU":
-        channel = "CC+NC"
-    
     font = font_manager.FontProperties(family='sans-serif', style='normal', size=12)
     fig, ax = plt.subplots(1, 1, figsize=(8, 6))
-    ax.plot(data_fixed["TauNorm"], np.sqrt(data_fixed["chi2"]), 'o--', linewidth=2, markersize=5, label=f"Data {order} ({channel})")
-    ax.axhline(y=3, linestyle='--', c = "black")
-    ax.text(0.1, 3.15, "3$\sigma$ line",  fontsize=10)
+    ax.plot(data_fixed["TauNorm"], np.sqrt(data_fixed["chi2"]), 'o--', linewidth=2, markersize=3, label=f"Data {text_conversion[order]} ({text_conversion[channel]})")
+    ax.axhline(y=3, linestyle='-.', c = "black")
+    #ax.text(0.1, 3.15, "3$\sigma$ line",  fontsize=10)
     ax.axhline(y=5, linestyle='--', c = "black")
-    ax.text(0.1, 5.15, "5$\sigma$ line", fontsize=10)
+    #ax.text(0.1, 5.15, "5$\sigma$ line", fontsize=10)
     ax.set(
         xlabel="Tau Normalization",
         ylabel="Significance ($\sigma$)",
         xlim=(0, 2),
-        title = f"Sensitivity of the Tau Normalization with {reco} reco",
-        ylim= (0, None)
+        title = f"Sensitivity of the Tau Normalization with {reco} reco and \
+                {text_conversion[order]} ({text_conversion[channel]})",
+        ylim= (0, None),
+        #yscale = "log"
     )
     ax.tick_params(which='major', direction="in", top=True, left=True, right=True, width=1.5, size=6)
     ax.tick_params(which='minor', direction="in", top=True, left=True, right=True, width=1, size=4)
     ax.legend(prop=font, frameon=False)
-    fig.savefig(os.path.join(save_path, f"SigmaPlots_TauNorm_{reco}_{probe}_{order}.png"))
+    fig.savefig(os.path.join(save_path, f"SigmaPlots_TauNorm_{reco}_{channel}_{order}.png"))
 
 def plot_chi2(
     data_free,
     data_fixed,
     reco,
-    probe,
+    channel,
     order,
     save_path
 ):
     
-    if probe == "STD":
-        channel = "CC-only"
-    elif probe == "TAU":
-        channel = "CC+NC"
-    
     font = font_manager.FontProperties(family='sans-serif', style='normal', size=12)
     fig, ax = plt.subplots(1, 1, figsize=(8, 6))
-    ax.plot(data_fixed["TauNorm"], data_fixed["chi2"]-data_free["chi2"], c = "black", label=f"Data {order} ({channel})")
+    ax.plot(data_fixed["TauNorm"], data_fixed["chi2"]-data_free["chi2"], "o--", markersize=3, c = "black", label=f"Data {text_conversion[order]} ({text_conversion[channel]})")
     ax.set(
         xlabel="Tau Normalization",
-        ylabel="$\chi^2$",
+        ylabel="$\Delta \chi^2$",
         xlim=(0, 2),
-        title = f"Sensitivity of the Tau Normalization with {reco} reco"
+        title = f"Sensitivity of the Tau Normalization with {reco} reco",
+        #yscale = "log"
     )
     ax.tick_params(which='major', direction="in", top=True, left=True, right=True, width=1.5, size=6)
     ax.tick_params(which='minor', direction="in", top=True, left=True, right=True, width=1, size=4)
     ax.legend(prop=font, frameon=False)
-    fig.savefig(os.path.join(save_path, f"Chi2Plots_TauNorm_{reco}_{probe}_{order}.png"))
+    fig.savefig(os.path.join(save_path, f"Chi2Plots_TauNorm_{reco}_{channel}_{order}.png"))
     
 
 if __name__ == '__main__':
@@ -108,21 +111,23 @@ if __name__ == '__main__':
     directory = args.directory
     reco = args.reco
     ordering = args.ordering
-    probe = args.probe
-    save_path = args.save_path
+    channel = args.channel
+    sys_option = args.systematic
     
+    save_path = os.path.join(directory, "plots", sys_option, "individual")
+    directory = os.path.join(directory, "output/ANTARES")
     if not os.path.exists(save_path):
         print(f"Creating directory {save_path}")
         os.makedirs(save_path)
 
     print(f"=============== Loading Data ===============")
-    data_free = _root_to_tables(os.path.join(directory, reco, probe, ordering, f"free/Chi2Profile_TauNorm_{probe}_{ordering}_free_FitTwoOctants.root"))
-    data_fixed = _root_to_tables(os.path.join(directory, reco, probe, ordering, f"fixed/Chi2Profile_TauNorm_{probe}_{ordering}_fixed_FitTwoOctants.root"))
+    data_free = _root_to_tables(os.path.join(directory, sys_option  ,reco, channel, ordering, f"free/Chi2Profile_TauNorm_{channel}_{ordering}_free_FitTwoOctants.root"))
+    data_fixed = _root_to_tables(os.path.join(directory, sys_option ,reco, channel, ordering, f"fixed/Chi2Profile_TauNorm_{channel}_{ordering}_fixed_FitTwoOctants.root"))
     
     print(f"=============== Plotting  ===============")
-    plot_chi2(data_free, data_fixed, reco, probe, ordering)
+    plot_chi2(data_free, data_fixed, reco, channel, ordering, save_path)
     
-    plot_sigma(data_free, data_fixed, reco, probe, ordering) 
+    plot_sigma(data_free, data_fixed, reco, channel, ordering, save_path)
         
     print("=============== End of program ===============")
                                                  
