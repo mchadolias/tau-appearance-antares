@@ -39,7 +39,7 @@ fi
 
 
 ### JOBNAME
-JOBNAME="job_chi2_${CHANNEL}_${ORDERING}_${RECONSTRUCTION}"
+JOBNAME="job_chi2_${CHANNEL}_${ORDERING}_${RECONSTRUCTION}_${SYSTEMATICS_FLAG}"
 
 ### LOGs
 if [ ! -d ${THIS_PROJ_DIR}/logs ]; then

@@ -13,15 +13,18 @@
 CHANNEL=("STD" "TAU")
 ORDERING=("NO" "IO")
 RECONSTRUCTION=("MC" "NNFit_full" "NNFit_dir" "AAFit_ann" "AAFit_dedx")
-
+SYSTEMATICS=(0 1)
 COUNTER=1
-for CHAN in "${CHANNEL[@]}"; do
-    for ORD in "${ORDERING[@]}"; do
-        for REC in "${RECONSTRUCTION[@]}"; do
-            echo -e "\n--------------------"
-            echo -e "Submitting job number ${COUNTER} for $CHAN $ORD $REC"
-            ./submit.sh 0 0 $CHAN $ORD $REC
-            COUNTER=$((COUNTER+1))
+
+for SYS in "${SYSTEMATICS[@]}"; do
+    for CHAN in "${CHANNEL[@]}"; do
+        for ORD in "${ORDERING[@]}"; do
+            for REC in "${RECONSTRUCTION[@]}"; do
+                echo -e "\n--------------------"
+                echo -e "Submitting job number ${COUNTER} for $CHAN $ORD $REC"
+                ./submit.sh 0 ${SYS} $CHAN $ORD $REC
+                COUNTER=$((COUNTER+1))
+            done
         done
     done
-done
+done    
