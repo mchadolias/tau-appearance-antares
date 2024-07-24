@@ -6,19 +6,13 @@
 ### SLURM
 
 #SBATCH --ntasks=1                    # Run a single task (by default tasks == CPU)
-#SBATCH --mem=2G                      # GB
-#SBATCH --time=00-06:00:00               #
+#SBATCH --mem=3G                      # GB
+#SBATCH --time=01-00:00:00               #
 #SBATCH --mail-user=mchadolias@km3net.de   # Where to send mail
 #SBATCH --mail-type=FAIL,TIME_LIMIT              # Mail events (NONE, BEGIN, END, FAIL, ALL)
 
 # Go to the directory of the script
 cd $WORK/master_thesis/tau_appearance/Chi2Profile
-
-# Load modules python
-module load python
-
-python3 create_json_file.py --channel $CHANNEL --order $ORDERING  --reco $RECONSTRUCTION --systematics "$SYSTEMATICS"
-python3 create_output_directories.py
 
 # Load modules
 echo "Loading modules"
@@ -26,9 +20,12 @@ source $HOME/bash_scripts/init.sh
 echo "Preparing SWIM environment"
 source $HOME/bash_scripts/swim_env.sh
 
+python3 create_json_file.py --channel $CHANNEL --order $ORDERING  --reco $RECONSTRUCTION --systematics "$SYSTEMATICS"
+python3 create_output_directories.py
+
 # Compile the code
-echo "Compiling the code"
-make clean && make
+#echo "Compiling the code"
+#make clean && make
 
 echo "Starting script:" $(basename $BASH_SOURCE)
 echo "CHANNEL: $CHANNEL"
@@ -68,7 +65,7 @@ else
     exit
 fi
 
-if [ $SYSTEMATICS == "true" ]; then
+if [ $SYSTEMATICS == "1" ]; then
     # Define parametes json file
     if [ $ORDERING == "NO" ]; then
         PARAMS="./json/PARAMETERS/parameters_Data_NO_Model_${ORDERING}_free_systematics.json"
@@ -107,7 +104,7 @@ echo "Parameters: $BINNING $CLASSES $VARIABLES $PARAMS $USER"
 # --------------- Fixed ----------------
 echo "Running MyChi2Profile with TauNorm parameter fixed"
 
-if [ $SYSTEMATICS == "true" ]; then
+if [ $SYSTEMATICS == "1" ]; then
     # Define parametes json file
     if [ $ORDERING == "NO" ]; then
         PARAMS="./json/PARAMETERS/parameters_Data_NO_Model_${ORDERING}_fixed_systematics.json"
@@ -145,6 +142,13 @@ WORKDIR="/sps/km3net/users/mchadoli/master_thesis/tau_appearance/Chi2Profile"
 
 cd ${WORKDIR}
 
-python3 plot_chi_square.py --probe $CHANNEL --ordering $ORDERING --reco $RECONSTRUCTION
+if [ $SYSTEMATICS == "0" ]; then
+    SYSTEMATICS="no_systematics"
+    echo "SYSTEMATICS: $SYSTEMATICS"
+else
+    SYSTEMATICS="systematics"
+fi
+
+python3 plot_chi_square.py --channel $CHANNEL --ordering $ORDERING --reco $RECONSTRUCTION --systematic $SYSTEMATICS
 
 echo "============ Finished ============"
