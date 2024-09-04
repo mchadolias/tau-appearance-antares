@@ -44,6 +44,8 @@ def ArgumentParser():
                         help="Path to the root files")
     parser.add_argument('--systematic', type=str, default="no_systematics",
                         help="Choose if the systematic uncertainties are included or not")
+    parser.add_argument('--cut', type=str, default="no_muons",
+                        help="Choose if the muons are included or not")
     args = parser.parse_args()
     return args
 
@@ -83,22 +85,24 @@ def plot_chi2(
 ):
     
     # Define the mass ordering
-    ordering = ["NO", "IO"]
+    ordering = ["IO"]
     
     # Define the font for legend
-    font = font_manager.FontProperties(family='sans-serif', style='normal', size=10)
+    font = font_manager.FontProperties(family='sans-serif', style='normal', size=12)
     
     print(f"Plotting {type}...")
     if type == "reconstruction":
         recos = ["MC", "AAFit_dedx", "AAFit_ann", "NNFit_full", "NNFit_dir"]
-        ordering = ["NO"] # temporary
+
         fig, ax = plt.subplots(1, 1, figsize=(10, 8))
         for order in ordering:
-            zoomed_ax = fig.add_axes([0.5, 0.5, 0.39, 0.36])
+            print(f"Plotting for {order}...")
+            zoomed_ax = fig.add_axes([0.6, 0.6, 0.29, 0.26])
             for reco in recos:
                 data_fixed, data_free = load_chi2_data(reco, channel, order, path)
+                print(len(data_fixed["TauNorm"]), len(data_fixed["chi2"] - data_free["chi2"]))
                 ax.plot(data_fixed["TauNorm"], data_fixed["chi2"] - data_free["chi2"], 
-                        'o', markersize=7, label=f"{text_conversion[reco]} {text_conversion[order]}")
+                        'o', markersize=7, label=f"{text_conversion[reco]}")
                 zoomed_ax.plot(data_fixed["TauNorm"], data_fixed["chi2"] - data_free["chi2"],
                                  'o--', linewidth=2, markersize=5)
             zoomed_ax.set(
@@ -113,8 +117,8 @@ def plot_chi2(
                 {text_conversion[order]}",
                 ylim = (0, 750),
             )
-        ax.legend(prop=font, frameon=False)
-        fig.savefig(os.path.join(save_path, f"Chi2Profile_{type}_{channel}_{order}.png"))
+            ax.legend(prop=font, frameon=False, loc=(0.2, 0.8))
+            fig.savefig(os.path.join(save_path, f"Chi2Profile_{type}_{channel}_{order}.png"))
         
     elif type == "study":
         channels = ["STD", "TAU"]
@@ -154,18 +158,15 @@ def sigma_plots(
     print(f"\nPlotting sigma plots for {type}...")
     if type == "reconstruction":
         recos = ["MC", "AAFit_dedx", "AAFit_ann", "NNFit_full", "NNFit_dir"]
-        ordering = ["NO"] # temporary
 
         fig, ax = plt.subplots(1, 1, figsize=(10, 8))
         for order in ordering:
-            for reco, order in product(recos, ordering):
+            for reco in recos:
                 data_fixed, data_free = load_chi2_data(reco, channel, order, path)
                 ax.plot(data_fixed["TauNorm"], square_root(data_fixed["chi2"] - data_free["chi2"]), 
                         'o--', linewidth=2, markersize=4, label=f"{text_conversion[reco]}")
             ax.axhline(y=3, linestyle='--', c = "black")
-            #ax.text(0.1, 3.15, "3$\sigma$ line",  fontsize=10)
             ax.axhline(y=5, linestyle='-.', c = "black")
-            #ax.text(0.1, 5.15, "5$\sigma$ line", fontsize=10)
             ax.set(
                 xlabel="Tau Normalization",
                 ylabel="Significance ($\sigma$)",
@@ -188,9 +189,7 @@ def sigma_plots(
             ax.plot(data_fixed["TauNorm"], square_diff, 
                     'o--', linewidth=2, markersize=5, label=f"{text_conversion[order]} ({text_conversion[channel]})")
         ax.axhline(y=3, linestyle='--', c = "black")
-        #ax.text(0.1, 3.15, "3$\sigma$ line",  fontsize=10)
         ax.axhline(y=5, linestyle='-.', c = "black")
-        #ax.text(0.1, 5.15, "5$\sigma$ line", fontsize=10)
         ax.set(
             xlabel="Tau Normalization",
             ylabel="Significance ($\sigma$)",
@@ -209,9 +208,10 @@ if __name__ == '__main__':
     reco = args.reco
     channel = args.channel
     systematic = args.systematic
+    cut_option = args.cut
     
-    rootpath =  os.path.join(path, f"output/ANTARES/{systematic}")
-    save_path = os.path.join(path, f"plots/{systematic}/merged")
+    rootpath =  os.path.join(path, f"output/ANTARES/{cut_option}/{systematic}")
+    save_path = os.path.join(path, f"plots/{cut_option}/{systematic}/merged")
     
     if type ==  "reconstruction":
         if channel is None:

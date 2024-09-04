@@ -5,11 +5,10 @@ import uproot
 import os
 import argparse
 import numpy as np
-import scienceplots
 
 # Set the style of the plots
-plt.style.use(['science', "grid"])    
-plt.rcParams['savefig.dpi'] = 1000
+plt.style.use(['grid'])
+plt.rcParams['savefig.dpi'] = 450
 plt.rcParams.update({
     'axes.titlesize': 20,
     'axes.labelsize': 15,
@@ -39,6 +38,8 @@ def ArgumentParser():
                         help="Choose which channel to channel. STD corresponds to CC and TAU corresponds to NC")
     parser.add_argument("--systematic", type=str, default="no_systematics",
                         help="Choose if the systematic uncertainties are included or not")
+    parser.add_argument("--cut", type=str, default="no_muons",
+                        help="Choose if the muons are included or not")
     args = parser.parse_args()
     return args
     
@@ -69,10 +70,8 @@ def plot_sigma(
         xlabel="Tau Normalization",
         ylabel="Significance ($\sigma$)",
         xlim=(0, 2),
-        title = f"Sensitivity of the Tau Normalization with {reco} reco and \
-                {text_conversion[order]} ({text_conversion[channel]})",
+        title = f"Sensitivity of the Tau Normalization with {reco} reco",
         ylim= (0, None),
-        #yscale = "log"
     )
     ax.tick_params(which='major', direction="in", top=True, left=True, right=True, width=1.5, size=6)
     ax.tick_params(which='minor', direction="in", top=True, left=True, right=True, width=1, size=4)
@@ -95,7 +94,7 @@ def plot_chi2(
         xlabel="Tau Normalization",
         ylabel="$\Delta \chi^2$",
         xlim=(0, 2),
-        title = f"Sensitivity of the Tau Normalization with {reco} reco",
+        title = f"Chi-square profile of TauNorm with {reco}",
         #yscale = "log"
     )
     ax.tick_params(which='major', direction="in", top=True, left=True, right=True, width=1.5, size=6)
@@ -113,16 +112,17 @@ if __name__ == '__main__':
     ordering = args.ordering
     channel = args.channel
     sys_option = args.systematic
+    cut_option = args.cut
     
-    save_path = os.path.join(directory, "plots", sys_option, "individual")
+    save_path = os.path.join(directory, "plots", cut_option, sys_option, "individual")
     directory = os.path.join(directory, "output/ANTARES")
     if not os.path.exists(save_path):
         print(f"Creating directory {save_path}")
         os.makedirs(save_path)
 
     print(f"=============== Loading Data ===============")
-    data_free = _root_to_tables(os.path.join(directory, sys_option  ,reco, channel, ordering, f"free/Chi2Profile_TauNorm_{channel}_{ordering}_free_FitTwoOctants.root"))
-    data_fixed = _root_to_tables(os.path.join(directory, sys_option ,reco, channel, ordering, f"fixed/Chi2Profile_TauNorm_{channel}_{ordering}_fixed_FitTwoOctants.root"))
+    data_free = _root_to_tables(os.path.join(directory, cut_option, sys_option  ,reco, channel, ordering, f"free/Chi2Profile_TauNorm_{channel}_{ordering}_free_FitTwoOctants.root"))
+    data_fixed = _root_to_tables(os.path.join(directory, cut_option, sys_option ,reco, channel, ordering, f"fixed/Chi2Profile_TauNorm_{channel}_{ordering}_fixed_FitTwoOctants.root"))
     
     print(f"=============== Plotting  ===============")
     plot_chi2(data_free, data_fixed, reco, channel, ordering, save_path)
