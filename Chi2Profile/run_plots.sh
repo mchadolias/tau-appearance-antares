@@ -6,7 +6,7 @@ module load python
 # Go to the directory of the script
 cd "$(dirname "$0")"
 
-SYSTEMATICS= ("systematics" "no_systematics")
+SYSTEMATICS=("systematics" "no_systematics")
 EXPERIMENT=("STD" "TAU")
 ORDERING=("NO" "IO")
 RECONSTRUCTION=("MC" "NNFit_full" "NNFit_dir" "AAFit_ann" "AAFit_dedx")
