@@ -22,7 +22,7 @@ for SYS in "${SYSTEMATICS[@]}"; do
             for REC in "${RECONSTRUCTION[@]}"; do
                 echo -e "\n--------------------"
                 echo -e "Submitting job number ${COUNTER} for $CHAN $ORD $REC"
-                ./submit.sh 0 ${SYS} $CHAN $ORD $REC
+                ./submit.sh 0 ${SYS} $CHAN $ORD $REC "no_muons"
                 COUNTER=$((COUNTER+1))
             done
         done

@@ -16,6 +16,7 @@ SYSTEMATICS_FLAG=$2
 CHANNEL=$3 # "STD" or "TAU"
 ORDERING=$4 # "NO" or "IO"
 RECONSTRUCTION=$5 # "MC" or "NNFit_full" or "NNFit_dir" or "AAFit_ann" or "AAFit_dedx"
+CUT_OPTION=$6 # example: "muon_free"
 
 if [ -z "$CHANNEL" ] || [ -z "$ORDERING" ] || [ -z "$RECONSTRUCTION" ]; then
     echo "Please provide all the necessary arguments"
@@ -39,7 +40,7 @@ fi
 
 
 ### JOBNAME
-JOBNAME="job_chi2_${CHANNEL}_${ORDERING}_${RECONSTRUCTION}_${SYSTEMATICS_FLAG}"
+JOBNAME="job_chi2_${CHANNEL}_${ORDERING}_${RECONSTRUCTION}_${CUT_OPTION}_${SYSTEMATICS_FLAG}"
 
 ### LOGs
 if [ ! -d ${THIS_PROJ_DIR}/logs ]; then
@@ -57,6 +58,8 @@ echo "sbatch \
 --export=ALL,\
 --CHANNEL=${CHANNEL},\
 --ORDERING=${ORDERING},\
+--SYSTEMATICS=${SYSTEMATICS_FLAG},\
+--CUT=${CUT_OPTION},\
 --RECONSTRUCTION=${RECONSTRUCTION},\
          ${WORKER_SCRIPT}"
 
@@ -68,18 +71,21 @@ sbatch \
 SYSTEMATICS=${SYSTEMATICS_FLAG},\
 CHANNEL=${CHANNEL},\
 ORDERING=${ORDERING},\
+CUT=${CUT_OPTION},\
 RECONSTRUCTION=${RECONSTRUCTION} \
          ${WORKER_SCRIPT}
 
 elif [[ "$DRY_RUN" -eq 1 ]]; then
 ### FRONTEND EXECUTION
     echo -e "FRONTEND EXECUTION \n ----------------------------------"
-    export CHANNEL=${CHANNEL} ORDERING=${ORDERING} RECONSTRUCTION=${RECONSTRUCTION} SYSTEMATICS=${SYSTEMATICS_FLAG}
+    export CHANNEL=${CHANNEL} ORDERING=${ORDERING} RECONSTRUCTION=${RECONSTRUCTION} SYSTEMATICS=${SYSTEMATICS_FLAG} CUT=${CUT_OPTION}
     ${WORKER_SCRIPT}
 else
     echo -e "Test run with following parameters: \n \
             WORKER_SCRIPT:${WORKER_SCRIPT} \n \
             CHANNEL:${CHANNEL} \n \
             ORDERING:${ORDERING} \n \
+            SYSTEMATICS:${SYSTEMATICS_FLAG} \n \
+            CUT:${CUT_OPTION} \n \
             RECONSTRUCTION:${RECONSTRUCTION}"
 fi
