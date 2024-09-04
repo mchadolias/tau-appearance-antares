@@ -21,7 +21,8 @@ def create_json_User(
     ordering_list: list,
     fixed_free_list: list,
     json_path: str,
-    sys_option_list: list
+    sys_option_list: list,
+    cut: str,
 ):
     
     # Generate all combinations using itertools.product
@@ -52,16 +53,17 @@ def create_json_User(
                 "reco": reco,
                 "both_octants": True,
                 "sys_option": sys_option,
+                "cut_option": cut,
             }
         }
 
         # Check if file already exists
-        if os.path.exists(os.path.join(json_path, f'USER/User_{reco}_{experiment}_{order}_{ff}_{sys_option}.json')):
-            print(f"File already exists: User_{reco}_{experiment}_{order}_{ff}_{sys_option}.json")
+        if os.path.exists(os.path.join(json_path, f'USER/User_{reco}_{experiment}_{order}_{cut}_{sys_option}_{ff}.json')):
+            print(f"File already exists: User_{reco}_{experiment}_{order}_{cut}_{sys_option}_{ff}.json")
         else:
-            with open(os.path.join(json_path, f'USER/User_{reco}_{experiment}_{order}_{ff}_{sys_option}.json'), 'w') as f:
+            with open(os.path.join(json_path, f'USER/User_{reco}_{experiment}_{order}_{cut}_{sys_option}_{ff}.json'), 'w') as f:
                 json.dump(json_file, f, indent=4)
-                print(f"Created file: User_{reco}_{experiment}_{order}_{ff}_{sys_option}.json")
+                print(f"Created file: User_{reco}_{experiment}_{order}_{cut}_{sys_option}_{ff}.json")
         
 def create_json_variables(
     channel_list: list,
@@ -107,7 +109,8 @@ def create_json_variables(
 
 def create_json_classes(
     json_path: str,
-    reco_list: list
+    reco_list: list,
+    cut: str,
 ):    
     for reco in reco_list:
       if reco == "NNFit_full":
@@ -190,12 +193,12 @@ def create_json_classes(
         
         
       # Check if file already exists
-      if os.path.exists(os.path.join(json_path, f'ANTARES/classes_ANTARES_{reco}.json')):
-          print(f"File already exists: classes_ANTARES_{reco}.json")
+      if os.path.exists(os.path.join(json_path, f'ANTARES/classes_ANTARES_{cut}_{reco}.json')):
+          print(f"File already exists: classes_ANTARES_{cut}_{reco}.json")
       else:
-          with open(os.path.join(json_path, f'ANTARES/classes_ANTARES_{reco}.json'), 'w') as f:
+          with open(os.path.join(json_path, f'ANTARES/classes_ANTARES_{cut}_{reco}.json'), 'w') as f:
               json.dump(json_file, f, indent=4)
-              print(f"Created file: classes_ANTARES_{reco}.json")    
+              print(f"Created file: classes_ANTARES_{cut}_{reco}.json")    
     
 def create_json_params(
     json_path: str,
@@ -231,12 +234,12 @@ def create_json_params(
             json_file["parameters"]["ShowerNorm"]["fixed"] = False
         
         # Check if file already exists
-        if os.path.exists(os.path.join(json_path, f'PARAMETERS/parameters_Data_NO_Model_{order}_{ff}_{sys_option}.json')):
-            print(f"File already exists: parameters_Data_NO_Model_{order}_{ff}_{sys_option}.json")
+        if os.path.exists(os.path.join(json_path, f'PARAMETERS/parameters_Data_NO_Model_{order}_{sys_option}_{ff}.json')):
+            print(f"File already exists: parameters_Data_NO_Model_{order}_{sys_option}_{ff}.json")
         else:
-            with open(os.path.join(json_path, f'PARAMETERS/parameters_Data_NO_Model_{order}_{ff}_{sys_option}.json'), 'w') as f:
+            with open(os.path.join(json_path, f'PARAMETERS/parameters_Data_NO_Model_{order}_{sys_option}_{ff}.json'), 'w') as f:
                 json.dump(json_file, f, indent=4)
-                print(f"Created file: parameters_Data_NO_Model_{order}_{ff}_{sys_option}.json")
+                print(f"Created file: parameters_Data_NO_Model_{order}_{sys_option}_{ff}.json")
     
     # Remove the template file
     for order in ordering_list: 
@@ -545,7 +548,8 @@ def create_json_binning(
   json_path: str,
   nbins: int,
 ):
-  energy_reco_bins = np.geomspace(10, 100, nbins)
+  energy_reco_bins = np.round(np.geomspace(10, 100, nbins), 4)
+  energy_reco_bins = np.append(energy_reco_bins, 1000)
   json_file = {
       "binning": {
         "nEbinsTrue": 30,
@@ -568,12 +572,12 @@ def create_json_binning(
     }
   
   # Check if file already exists
-  if os.path.exists(os.path.join(json_path, f'ANTARES/binning_ANTARES.json')):
-      print(f"File already exists: binning_ANTARES.json")
+  if os.path.exists(os.path.join(json_path, f'ANTARES/binning_ANTARES_{nbins+1}.json')):
+      print(f"File already exists: binning_ANTARES_{nbins+1}.json")
   else:
-      with open(os.path.join(json_path, f'ANTARES/binning_ANTARES.json'), 'w') as f:
+      with open(os.path.join(json_path, f'ANTARES/binning_ANTARES_{nbins+1}.json'), 'w') as f:
           json.dump(json_file, f, indent=4)
-          print(f"Created file: binning_ANTARES.json")
+          print(f"Created file: binning_ANTARES_{nbins+1}.json")
 
         
 
@@ -583,17 +587,18 @@ def run_json_files(
     ordering_list: list,
     fixed_free_list: list,
     systematics_list: list,
-    json_path: str
+    json_path: str,
+    cut_option: str
 ):
     # Create the json files
     print("Creating JSON User files...")
-    create_json_User(reco_list, channel_list, ordering_list, fixed_free_list, json_path, systematics_list)
+    create_json_User(reco_list, channel_list, ordering_list, fixed_free_list, json_path, systematics_list, cut_option)
 
     print("\nCreating JSON variables files...")
     create_json_variables(channel_list, json_path)
 
     print("\nCreating JSON classes files...")
-    create_json_classes(json_path, reco_list)
+    create_json_classes(json_path, reco_list, cut_option)
     
     print("\nCreating JSON parameters files...")
     create_json_params(json_path, ordering_list, fixed_free_list, systematics_list)
@@ -610,6 +615,7 @@ if __name__ == '__main__':
     ordering_list = ['NO', 'IO']
     fixed_free_list = ['fixed', 'free']
     systematics_list = ['systematics', 'no_systematics']
+    cut_option = "no_muons"
     
     json_path = os.path.join(os.getcwd(), 'json')
     
@@ -626,5 +632,5 @@ if __name__ == '__main__':
     elif not os.path.exists(os.path.join(json_path, 'PARAMETERS')):
         os.makedirs(os.path.join(json_path, 'PARAMETERS'))
                
-    run_json_files(reco_list, channel_list, ordering_list, fixed_free_list, systematics_list, json_path)
+    run_json_files(reco_list, channel_list, ordering_list, fixed_free_list, systematics_list, json_path, cut_option)
     

@@ -27,7 +27,8 @@ def ArgumentParser():
                         help="Choose the mass ordering. Options: NO, IO")
     parser.add_argument("--systematics", type=str,
                         help="Choose the systematics option. Options: 0 for no systematics, 1 for systematics")
-    
+    parser.add_argument("--cut", type=str, default="muon_free",
+                        help="Choose the cut to be applied")
     return parser.parse_args()
     
 def create_json_User(
@@ -36,6 +37,7 @@ def create_json_User(
     channel: str,
     systematics: str,
     json_path: str,
+    cut: str,
     npoints: int = 21,
 ):
     # Create the base directory
@@ -61,16 +63,17 @@ def create_json_User(
                 "reco": reco,
                 "both_octants": True,
                 "systematics": systematics,
+                "cut_option": cut,
             }
         }
 
         # Check if file already exists
-        if os.path.exists(os.path.join(json_path, f'USER/User_{reco}_{channel}_{order}_{ff}_{systematics}.json')):
-            print(f"File already exists: User_{reco}_{channel}_{order}_{ff}_{systematics}.json")
+        if os.path.exists(os.path.join(json_path, f'USER/User_{reco}_{channel}_{order}_{cut}_{ff}_{systematics}.json')):
+            print(f"File already exists: User_{reco}_{channel}_{order}_{cut}_{ff}_{systematics}.json")
         else:
-            with open(os.path.join(json_path, f'USER/User_{reco}_{channel}_{order}_{ff}_{systematics}.json'), 'w') as f:
+            with open(os.path.join(json_path, f'USER/User_{reco}_{channel}_{order}_{cut}_{ff}_{systematics}.json'), 'w') as f:
                 json.dump(json_file, f, indent=4)
-                print(f"Created file: User_{reco}_{channel}_{order}_{ff}_{systematics}.json")
+                print(f"Created file: User_{reco}_{channel}_{order}_{cut}_{ff}_{systematics}.json")
         
 def create_json_variables(
     channel: str,
@@ -115,7 +118,8 @@ def create_json_variables(
 
 def create_json_classes(
     json_path: str,
-    reco: str
+    reco: str,
+    cut: str,
 ):    
       if reco == "NNFit_full":
         json_file = {
@@ -197,12 +201,12 @@ def create_json_classes(
         
         
       # Check if file already exists
-      if os.path.exists(os.path.join(json_path, f'ANTARES/classes_ANTARES_{reco}.json')):
+      if os.path.exists(os.path.join(json_path, f'ANTARES/classes_ANTARES_{cut}_{reco}.json')):
           print(f"File already exists: classes_ANTARES_{reco}.json")
       else:
-          with open(os.path.join(json_path, f'ANTARES/classes_ANTARES_{reco}.json'), 'w') as f:
+          with open(os.path.join(json_path, f'ANTARES/classes_ANTARES_{cut}_{reco}.json'), 'w') as f:
               json.dump(json_file, f, indent=4)
-              print(f"Created file: classes_ANTARES_{reco}.json")    
+              print(f"Created file: classes_ANTARES_{cut}_{reco}.json")    
     
 def create_json_params(
     json_path: str,
@@ -546,7 +550,8 @@ def create_json_binning(
   json_path: str,
   nbins: int,
 ):
-  energy_reco_bins = np.geomspace(10, 100, nbins)
+  energy_reco_bins = np.round(np.geomspace(10, 100, nbins), 4)
+  energy_reco_bins = np.append(energy_reco_bins, 1000)
   json_file = {
       "binning": {
         "nEbinsTrue": 30,
@@ -569,12 +574,12 @@ def create_json_binning(
     }
   
   # Check if file already exists
-  if os.path.exists(os.path.join(json_path, f'ANTARES/binning_ANTARES.json')):
-      print(f"File already exists: binning_ANTARES.json")
+  if os.path.exists(os.path.join(json_path, f'ANTARES/binning_ANTARES_{nbins+1}.json')):
+      print(f"File already exists: binning_ANTARES_{nbins+1}.json")
   else:
-      with open(os.path.join(json_path, f'ANTARES/binning_ANTARES.json'), 'w') as f:
+      with open(os.path.join(json_path, f'ANTARES/binning_ANTARES_{nbins+1}.json'), 'w') as f:
           json.dump(json_file, f, indent=4)
-          print(f"Created file: binning_ANTARES.json")
+          print(f"Created file: binning_ANTARES_{nbins+1}.json")
 
         
 
@@ -585,16 +590,17 @@ def run_json_files(
     systematics: str,    
     json_path: str,
     npoints: int,
+    cut: str,
 ):
     # Create the json files
     print("Creating JSON User files...")
-    create_json_User(reco, order, channel, systematics, json_path, npoints)
+    create_json_User(reco, order, channel, systematics, json_path, cut, npoints)
 
     print("\nCreating JSON variables files...")
     create_json_variables(channel, json_path)
 
     print("\nCreating JSON classes files...")
-    create_json_classes(json_path, reco)
+    create_json_classes(json_path, reco, cut)
     
     print("\nCreating JSON parameters files...")
     create_json_params(json_path, order, systematics)
@@ -611,6 +617,7 @@ if __name__ == '__main__':
     reco = arg.reco
     order = arg.order
     systematics = arg.systematics
+    cut_option = arg.cut
     
     systematics = "systematics" if systematics == "1" else "no_systematics"
     
@@ -638,4 +645,4 @@ if __name__ == '__main__':
     elif systematics == "systematics":
       npoints = 15
     
-    run_json_files(channel, reco, order, systematics, json_path, npoints)
+    run_json_files(channel, reco, order, systematics, json_path, npoints, cut_option)

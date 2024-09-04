@@ -1,7 +1,15 @@
 from pathlib import Path
 from itertools import product
+import argparse
 
-def create_directories(base_dir):
+def ArgumentParser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--cut", type=str, default="muon_free",
+                        help="Choose the cut to be applied")
+    return parser.parse_args()
+    
+    
+def create_directories(base_dir, cut):
     # Define the categories and possible values
     reco_list = ['MC', 'AAFit_dedx', 'AAFit_ann', 'NNFit_full', "NNFit_dir"]
     channel_list = ['STD', 'TAU']
@@ -16,7 +24,7 @@ def create_directories(base_dir):
     # Generate all combinations using itertools.product
     for sys_option in ("systematics", "no_systematics"):
         for reco, channel, type_, ff, experiment in product(reco_list, channel_list, type_list, fixed_free_list, experiment_list):
-            dir_path = base_path / experiment / sys_option / reco / channel / type_ / ff
+            dir_path = base_path / experiment / cut / sys_option / reco / channel / type_ / ff
 
             # Check if the directory already exists
             if not dir_path.exists():
@@ -32,6 +40,9 @@ def create_directories(base_dir):
 if __name__ == '__main__':
     # Specify the base directory
     base_directory = 'output'
+    
+    args = ArgumentParser()
+    cut = args.cut
 
     # Create the directory structure
-    create_directories(base_directory)
+    create_directories(base_directory, cut)
