@@ -48,7 +48,7 @@ int main(int argc, char* argv[]){
 
         if (FileExists && i == 0){
             cout << "File " << outputname << " already exists. Skipping.." << endl;
-            continue;
+            break;
         }
         cout << "Output is written to " << outputname << endl;
 
@@ -61,28 +61,5 @@ int main(int argc, char* argv[]){
         }
 
         Fitter.WriteOutput(outputname.c_str()); //This will write two output files, 1 json 1 root
-
-        if (testvalue == 0){
-            string outputname_data_hist = string(path + "/histograms_data.root");
-            string outputname_model_hist = string(path + "/histograms_model.root");
-
-            TFile outFile_data_hist(outputname_data_hist.c_str(),"recreate");
-            cout << "Writing data histogram to: " << outputname_data_hist << endl;
-            outFile_data_hist.cd();
-            Fitter.expData->WriteExperiment(&outFile_data_hist);
-            outFile_data_hist.Close();
-
-            TFile outFile_model_hist(outputname_model_hist.c_str(),"recreate");
-            cout << "Writing model histogram to: " << outputname_model_hist << endl;
-            outFile_model_hist.cd();
-            Fitter.expModel->WriteExperiment(&outFile_model_hist);
-            outFile_model_hist.Close();
-
-            string outputname_map_poisson = string(path + "/Chi2Maps_poisson");
-            string outputname_map_gauss = string(path + "/Chi2Maps_gauss");
-            Fitter.WriteChi2Maps(outputname_map_poisson, false);
-            Fitter.WriteChi2Maps(outputname_map_gauss, true);
-
-        }
     }
 }
