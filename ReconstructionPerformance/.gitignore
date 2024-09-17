@@ -1,3 +1,4 @@
+notebooks
 __pycache__
 plots
 data
@@ -6,4 +7,3 @@ summary_files
 *.root
 *.txt
 
-notebooks // temporary 
