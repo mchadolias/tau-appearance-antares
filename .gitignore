@@ -1,1 +1,7 @@
 CutSelection
+*.root
+
+// General directories
+logs
+bin
+plots

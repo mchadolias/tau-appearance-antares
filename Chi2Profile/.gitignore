@@ -1,7 +1,3 @@
 output
 json
-*.root
-logs
-bin
 EffMass
-plots
