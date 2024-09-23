@@ -14,6 +14,7 @@ reco_info = {"MC" : {"energy": "energy_recoTrue", "zenith": "cos_zenith_recoTrue
              "AAFit_ann" : {"energy": "energy_aafit_ANN_ECAP", "zenith": "aafit_cos_zenith", "biy": "aafit_bjy"},
              "NNFit_full" : {"energy": "Energy", "zenith": "cos_zenith", "biy":"NNFit_Bjorken_y"},
              "NNFit_dir": {"energy": "energy_recoTrue", "zenith": "cos_zenith", "biy":"NNFit_Bjorken_y"},
+              "Smeared": {"energy": "energy_smeared", "zenith": "cos_zenith_smeared", "biy": "bjorken_y_recoTrue"},
             }
 
 def ArgumentParser():
@@ -29,6 +30,10 @@ def ArgumentParser():
                         help="Choose the systematics option. Options: 0 for no systematics, 1 for systematics")
     parser.add_argument("--cut", type=str, default="muon_free",
                         help="Choose the cut to be applied")
+    parser.add_argument("--smear_level", type=int, default=0,
+                        help="Choose the smear level to be applied")
+    parser.add_argument("--npoints", type=int, default=21,
+                        help="Choose the number of points to be used in the user json file")
     return parser.parse_args()
     
 def create_json_User(
@@ -39,6 +44,7 @@ def create_json_User(
     json_path: str,
     cut: str,
     npoints: int = 21,
+    smear_level: int = 0,
 ):
     # Create the base directory
     for ff in ("fixed", "free"):
@@ -67,54 +73,109 @@ def create_json_User(
             }
         }
 
-        # Check if file already exists
-        if os.path.exists(os.path.join(json_path, f'USER/User_{reco}_{channel}_{order}_{cut}_{ff}_{systematics}.json')):
-            print(f"File already exists: User_{reco}_{channel}_{order}_{cut}_{ff}_{systematics}.json")
+        if (reco == "Smeared"):
+          json_file["user"]["is_smeared"] = True
+          json_file["user"]["smear_level"] = smear_level
+
+          # Check if file already exists
+          if os.path.exists(os.path.join(json_path, f'USER/User_{reco}_{smear_level}_{channel}_{order}_{cut}_{systematics}_{ff}.json')):
+              print(f"File already exists: User_{reco}_{smear_level}_{channel}_{order}_{cut}_{systematics}_{ff}.json")
+          else:
+              with open(os.path.join(json_path, f'USER/User_{reco}_{smear_level}_{channel}_{order}_{cut}_{systematics}_{ff}.json'), 'w') as f:
+                  json.dump(json_file, f, indent=4)
+                  print(f"Created file: User_{reco}_{smear_level}_{channel}_{order}_{cut}_{systematics}_{ff}.json")
+        
         else:
-            with open(os.path.join(json_path, f'USER/User_{reco}_{channel}_{order}_{cut}_{ff}_{systematics}.json'), 'w') as f:
-                json.dump(json_file, f, indent=4)
-                print(f"Created file: User_{reco}_{channel}_{order}_{cut}_{ff}_{systematics}.json")
+          json_file["user"]["is_smeared"] = False
+          json_file["user"]["smear_level"] = 0
+
+          # Check if file already exists
+          if os.path.exists(os.path.join(json_path, f'USER/User_{reco}_{channel}_{order}_{cut}_{ff}_{systematics}.json')):
+              print(f"File already exists: User_{reco}_{channel}_{order}_{cut}_{ff}_{systematics}.json")
+          else:
+              with open(os.path.join(json_path, f'USER/User_{reco}_{channel}_{order}_{cut}_{ff}_{systematics}.json'), 'w') as f:
+                  json.dump(json_file, f, indent=4)
+                  print(f"Created file: User_{reco}_{channel}_{order}_{cut}_{ff}_{systematics}.json")
         
 def create_json_variables(
     channel: str,
-    json_path: str
+    json_path: str,
+    smear_level: int = 0,
 ):    
-        json_file = {
-            "variables": {
-                "MClabel": "ANTARES",
-                "SelectedEvents_filename": [
-                    "antares_w_nnfit_FINAL1.root"
-                ],
-                "exposure_nyears": 12.433,
-                "output_path": "output",
-                "flux_path": "flux/Honda2014_frj-solmin-aa_ORCA6_hist.root",
-                "by_path": "xsection/dummy_by_ORCA6.root",
-                "crossfile_InteractingEvents_path": "xsection/xsection_gsg_v5r1_SWIM.root",
-                "crossfile_RespMatrix_path": "xsection/xsection_gsg_v5r1_SWIM.root",
-                "PREMTable": "prem_default.txt",
-                "ExtensiveOutput": True,
-                "EnableMCError": True,
-                "UseW2Method": True,
-                "PlotEffMass": False,
-                "Verbose": False,
-                "SetMuons": False,
-                "EnableSmearMachine": False,
-                "Analysis_Type": "Asimov",
-                "Experiment_Type": text_conversion[channel],
-                "PseudoExperiment_seed": 11,
-                "SetBootstrap": False,
-                "Bootstrap_seed": 1,
-                "Bootstrap_Fraction": 1
-            }
-        }
-        
-        # Check if file already exists
-        if os.path.exists(os.path.join(json_path, f'ANTARES/variables_ANTARES_{channel}.json')):
-            print(f"File already exists: variables_ANTARES_{channel}.json")
+        if (smear_level == 0):
+          json_file = {
+              "variables": {
+                  "MClabel": "ANTARES",
+                  "SelectedEvents_filename": [
+                      "antares_w_nnfit_FINAL1.root"
+                  ],
+                  "exposure_nyears": 12.433,
+                  "output_path": "output",
+                  "flux_path": "flux/Honda2014_frj-solmin-aa_ORCA6_hist.root",
+                  "by_path": "xsection/dummy_by_ORCA6.root",
+                  "crossfile_InteractingEvents_path": "xsection/xsection_gsg_v5r1_SWIM.root",
+                  "crossfile_RespMatrix_path": "xsection/xsection_gsg_v5r1_SWIM.root",
+                  "PREMTable": "prem_default.txt",
+                  "ExtensiveOutput": True,
+                  "EnableMCError": True,
+                  "UseW2Method": True,
+                  "PlotEffMass": False,
+                  "Verbose": False,
+                  "SetMuons": False,
+                  "EnableSmearMachine": False,
+                  "Analysis_Type": "Asimov",
+                  "Experiment_Type": text_conversion[channel],
+                  "PseudoExperiment_seed": 11,
+                  "SetBootstrap": False,
+                  "Bootstrap_seed": 1,
+                  "Bootstrap_Fraction": 1
+              }
+          }
+
+          # Check if file already exists
+          if os.path.exists(os.path.join(json_path, f'ANTARES/variables_ANTARES_{channel}.json')):
+              print(f"File already exists: variables_ANTARES_{channel}.json")
+          else:
+              with open(os.path.join(json_path, f'ANTARES/variables_ANTARES_{channel}.json'), 'w') as f:
+                  json.dump(json_file, f, indent=4)
+                  print(f"Created file: variables_ANTARES_{channel}.json")
         else:
-            with open(os.path.join(json_path, f'ANTARES/variables_ANTARES_{channel}.json'), 'w') as f:
-                json.dump(json_file, f, indent=4)
-                print(f"Created file: variables_ANTARES_{channel}.json")
+            json_file = {
+              "variables": {
+                  "MClabel": "ANTARES",
+                  "SelectedEvents_filename": [
+                      f"antares_w_nnfit_FINAL1_smeared_{smear_level}.root"
+                  ],
+                  "exposure_nyears": 12.433,
+                  "output_path": "output",
+                  "flux_path": "flux/Honda2014_frj-solmin-aa_ORCA6_hist.root",
+                  "by_path": "xsection/dummy_by_ORCA6.root",
+                  "crossfile_InteractingEvents_path": "xsection/xsection_gsg_v5r1_SWIM.root",
+                  "crossfile_RespMatrix_path": "xsection/xsection_gsg_v5r1_SWIM.root",
+                  "PREMTable": "prem_default.txt",
+                  "ExtensiveOutput": True,
+                  "EnableMCError": True,
+                  "UseW2Method": True,
+                  "PlotEffMass": False,
+                  "Verbose": False,
+                  "SetMuons": False,
+                  "EnableSmearMachine": False,
+                  "Analysis_Type": "Asimov",
+                  "Experiment_Type": text_conversion[channel],
+                  "PseudoExperiment_seed": 11,
+                  "SetBootstrap": False,
+                  "Bootstrap_seed": 1,
+                  "Bootstrap_Fraction": 1
+              }
+            }
+          
+            # Check if file already exists
+            if os.path.exists(os.path.join(json_path, f'ANTARES/variables_ANTARES_{channel}_Smear_{smear_level}.json')):
+                print(f"File already exists: variables_ANTARES_{channel}_Smear_{smear_level}.json")
+            else:
+                with open(os.path.join(json_path, f'ANTARES/variables_ANTARES_{channel}_Smear_{smear_level}.json'), 'w') as f:
+                    json.dump(json_file, f, indent=4)
+                    print(f"Created file: variables_ANTARES_{channel}_Smear_{smear_level}.json")
 
 def create_json_classes(
     json_path: str,
@@ -240,12 +301,12 @@ def create_json_params(
             json_file["parameters"]["ShowerNorm"]["fixed"] = False
         
         # Check if file already exists
-        if os.path.exists(os.path.join(json_path, f'PARAMETERS/parameters_Data_NO_Model_{order}_{ff}_{systematics}.json')):
-            print(f"File already exists: parameters_Data_NO_Model_{order}_{ff}_{systematics}.json")
+        if os.path.exists(os.path.join(json_path, f'PARAMETERS/parameters_Data_NO_Model_{order}_{systematics}_{ff}.json')):
+            print(f"File already exists: parameters_Data_NO_Model_{order}_{systematics}_{ff}.json")
         else:
-            with open(os.path.join(json_path, f'PARAMETERS/parameters_Data_NO_Model_{order}_{ff}_{systematics}.json'), 'w') as f:
+            with open(os.path.join(json_path, f'PARAMETERS/parameters_Data_NO_Model_{order}_{systematics}_{ff}.json'), 'w') as f:
                 json.dump(json_file, f, indent=4)
-                print(f"Created file: parameters_Data_NO_Model_{order}_{ff}_{systematics}.json")
+                print(f"Created file: parameters_Data_NO_Model_{order}_{systematics}_{ff}.json")
     
     # Remove the template file
     #print(f"Removing template file: params_template_{order}.json")   
@@ -591,13 +652,14 @@ def run_json_files(
     json_path: str,
     npoints: int,
     cut: str,
+    smear_level: int,
 ):
     # Create the json files
     print("Creating JSON User files...")
-    create_json_User(reco, order, channel, systematics, json_path, cut, npoints)
+    create_json_User(reco, order, channel, systematics, json_path, cut, npoints, smear_level)
 
     print("\nCreating JSON variables files...")
-    create_json_variables(channel, json_path)
+    create_json_variables(channel, json_path, smear_level)
 
     print("\nCreating JSON classes files...")
     create_json_classes(json_path, reco, cut)
@@ -606,7 +668,7 @@ def run_json_files(
     create_json_params(json_path, order, systematics)
     
     print("\nCreate JSON binning files...")
-    create_json_binning(json_path, 20)
+    create_json_binning(json_path, 15)
     
 
     
@@ -618,6 +680,8 @@ if __name__ == '__main__':
     order = arg.order
     systematics = arg.systematics
     cut_option = arg.cut
+    smear_level = arg.smear_level
+    npoints = arg.npoints
     
     systematics = "systematics" if systematics == "1" else "no_systematics"
     
@@ -641,8 +705,8 @@ if __name__ == '__main__':
         os.makedirs(os.path.join(json_path, 'PARAMETERS'))
         
     if systematics == "no_systematics":
-      npoints = 21
+      npoints = 3
     elif systematics == "systematics":
       npoints = 15
     
-    run_json_files(channel, reco, order, systematics, json_path, npoints, cut_option)
+    run_json_files(channel, reco, order, systematics, json_path, npoints, cut_option, smear_level)
