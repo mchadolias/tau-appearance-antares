@@ -15,10 +15,11 @@ DRY_RUN=$1
 SYSTEMATICS_FLAG=$2
 CHANNEL=$3 # "STD" or "TAU"
 ORDERING=$4 # "NO" or "IO"
-RECONSTRUCTION=$5 # "MC" or "NNFit_full" or "NNFit_dir" or "AAFit_ann" or "AAFit_dedx"
+RECONSTRUCTION=$5 # "MC" or "NNFit_full" or "NNFit_dir" or "AAFit_ann" or "AAFit_dedx" or "Smeared"
 CUT_OPTION=$6 # example: "muon_free"
+SMEARING_LEVEL=$7 # example: "10" or "50" or "100" or "200" or "500" or "km3net"
 
-if [ -z "$CHANNEL" ] || [ -z "$ORDERING" ] || [ -z "$RECONSTRUCTION" ]; then
+if [ -z "$CHANNEL" ] || [ -z "$ORDERING" ] || [ -z "$RECONSTRUCTION" ] || [ -z "$CUT_OPTION" ] || [ -z "$SMEARING_LEVEL" ]; then
     echo "Please provide all the necessary arguments"
     exit
 fi
@@ -29,7 +30,11 @@ echo "DRY_RUN: $DRY_RUN"
 echo "SYSTEMATICS: $SYSTEMATICS_FLAG"
 echo "CHANNEL: $CHANNEL"
 echo "ORDERING: $ORDERING"
-echo -e "RECONSTRUCTION: $RECONSTRUCTION\n"
+echo "RECONSTRUCTION: $RECONSTRUCTION"
+echo "CUT_OPTION: $CUT_OPTION"
+echo "SMEARING_LEVEL: $SMEARING_LEVEL"
+echo -e "--------------------\n"
+
 
 ### PROJECT DIR for logs and the worker script
 if [ -z "$THIS_INPUT_PROJ_DIR" ]; then
@@ -40,7 +45,7 @@ fi
 
 
 ### JOBNAME
-JOBNAME="job_chi2_${CHANNEL}_${ORDERING}_${RECONSTRUCTION}_${CUT_OPTION}_${SYSTEMATICS_FLAG}"
+JOBNAME="job_chi2_${CHANNEL}_${ORDERING}_${RECONSTRUCTION}_${CUT_OPTION}_${SYSTEMATICS_FLAG}_${SMEARING_LEVEL}"
 
 ### LOGs
 if [ ! -d ${THIS_PROJ_DIR}/logs ]; then
@@ -60,7 +65,9 @@ echo "sbatch \
 --ORDERING=${ORDERING},\
 --SYSTEMATICS=${SYSTEMATICS_FLAG},\
 --CUT=${CUT_OPTION},\
+--DRY_RUN=${DRY_RUN},\
 --RECONSTRUCTION=${RECONSTRUCTION},\
+--SMEARING_LEVEL=${SMEARING_LEVEL} \
          ${WORKER_SCRIPT}"
 
 sbatch \
@@ -72,13 +79,21 @@ SYSTEMATICS=${SYSTEMATICS_FLAG},\
 CHANNEL=${CHANNEL},\
 ORDERING=${ORDERING},\
 CUT=${CUT_OPTION},\
-RECONSTRUCTION=${RECONSTRUCTION} \
+DRY_RUN=${DRY_RUN},\
+RECONSTRUCTION=${RECONSTRUCTION},\
+SMEARING_LEVEL=${SMEARING_LEVEL} \
          ${WORKER_SCRIPT}
 
 elif [[ "$DRY_RUN" -eq 1 ]]; then
 ### FRONTEND EXECUTION
-    echo -e "FRONTEND EXECUTION \n ----------------------------------"
-    export CHANNEL=${CHANNEL} ORDERING=${ORDERING} RECONSTRUCTION=${RECONSTRUCTION} SYSTEMATICS=${SYSTEMATICS_FLAG} CUT=${CUT_OPTION}
+    echo -e "FRONTEND EXECUTION \n----------------------------------"
+    export CHANNEL=${CHANNEL} \
+           ORDERING=${ORDERING} \
+           RECONSTRUCTION=${RECONSTRUCTION} \
+           SYSTEMATICS=${SYSTEMATICS_FLAG} \
+           CUT=${CUT_OPTION} \
+           SMEARING_LEVEL=${SMEARING_LEVEL} \
+           DRY_RUN=${DRY_RUN}
     ${WORKER_SCRIPT}
 else
     echo -e "Test run with following parameters: \n \
@@ -87,5 +102,6 @@ else
             ORDERING:${ORDERING} \n \
             SYSTEMATICS:${SYSTEMATICS_FLAG} \n \
             CUT:${CUT_OPTION} \n \
-            RECONSTRUCTION:${RECONSTRUCTION}"
+            RECONSTRUCTION:${RECONSTRUCTION} \n \
+            SMEARING_LEVEL:${SMEARING_LEVEL} \n "
 fi
