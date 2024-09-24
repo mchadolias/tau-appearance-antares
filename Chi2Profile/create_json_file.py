@@ -30,7 +30,7 @@ def ArgumentParser():
                         help="Choose the systematics option. Options: 0 for no systematics, 1 for systematics")
     parser.add_argument("--cut", type=str, default="muon_free",
                         help="Choose the cut to be applied")
-    parser.add_argument("--smear_level", type=int, default=0,
+    parser.add_argument("--smear_level", type=str,
                         help="Choose the smear level to be applied")
     parser.add_argument("--npoints", type=int, default=21,
                         help="Choose the number of points to be used in the user json file")
@@ -43,8 +43,8 @@ def create_json_User(
     systematics: str,
     json_path: str,
     cut: str,
-    npoints: int = 21,
-    smear_level: int = 0,
+    npoints: int,
+    smear_level: str,
 ):
     # Create the base directory
     for ff in ("fixed", "free"):
@@ -90,19 +90,19 @@ def create_json_User(
           json_file["user"]["smear_level"] = 0
 
           # Check if file already exists
-          if os.path.exists(os.path.join(json_path, f'USER/User_{reco}_{channel}_{order}_{cut}_{ff}_{systematics}.json')):
-              print(f"File already exists: User_{reco}_{channel}_{order}_{cut}_{ff}_{systematics}.json")
+          if os.path.exists(os.path.join(json_path, f'USER/User_{reco}_{channel}_{order}_{cut}_{systematics}_{ff}.json')):
+              print(f"File already exists: User_{reco}_{channel}_{order}_{cut}_{systematics}_{ff}.json")
           else:
-              with open(os.path.join(json_path, f'USER/User_{reco}_{channel}_{order}_{cut}_{ff}_{systematics}.json'), 'w') as f:
+              with open(os.path.join(json_path, f'USER/User_{reco}_{channel}_{order}_{cut}_{systematics}_{ff}.json'), 'w') as f:
                   json.dump(json_file, f, indent=4)
-                  print(f"Created file: User_{reco}_{channel}_{order}_{cut}_{ff}_{systematics}.json")
+                  print(f"Created file: User_{reco}_{channel}_{order}_{cut}_{systematics}_{ff}.json")
         
 def create_json_variables(
     channel: str,
     json_path: str,
-    smear_level: int = 0,
+    smear_level: str,
 ):    
-        if (smear_level == 0):
+        if (smear_level == "0"):
           json_file = {
               "variables": {
                   "MClabel": "ANTARES",
@@ -652,7 +652,7 @@ def run_json_files(
     json_path: str,
     npoints: int,
     cut: str,
-    smear_level: int,
+    smear_level: str,
 ):
     # Create the json files
     print("Creating JSON User files...")
@@ -682,6 +682,14 @@ if __name__ == '__main__':
     cut_option = arg.cut
     smear_level = arg.smear_level
     npoints = arg.npoints
+
+    print(f"Channel: {channel}")
+    print(f"Reconstruction: {reco}")
+    print(f"Mass ordering: {order}")
+    print(f"Systematics: {systematics}")
+    print(f"Cut option: {cut_option}")
+    print(f"Smear level: {smear_level}")
+    print(f"Number of points: {npoints}\n")
     
     systematics = "systematics" if systematics == "1" else "no_systematics"
     
@@ -705,7 +713,7 @@ if __name__ == '__main__':
         os.makedirs(os.path.join(json_path, 'PARAMETERS'))
         
     if systematics == "no_systematics":
-      npoints = 3
+      npoints = 20
     elif systematics == "systematics":
       npoints = 15
     
