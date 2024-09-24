@@ -13,17 +13,20 @@
 CHANNEL=("STD" "TAU")
 ORDERING=("NO" "IO")
 RECONSTRUCTION=("MC" "NNFit_full" "NNFit_dir" "AAFit_ann" "AAFit_dedx")
-SYSTEMATICS=(0 1)
+SYSTEMATICS=(0)
 COUNTER=1
 
+echo -e "\n--------------------"
+echo "Starting script:" $(basename $BASH_SOURCE)
+echo -e "--------------------\n"
 for SYS in "${SYSTEMATICS[@]}"; do
     for CHAN in "${CHANNEL[@]}"; do
         for ORD in "${ORDERING[@]}"; do
             for REC in "${RECONSTRUCTION[@]}"; do
-                echo -e "\n--------------------"
-                echo -e "Submitting job number ${COUNTER} for $CHAN $ORD $REC"
-                ./submit.sh 0 ${SYS} $CHAN $ORD $REC "no_muons"
-                COUNTER=$((COUNTER+1))
+                    echo -e "Submitting job number ${COUNTER} for $CHAN $ORD $REC"
+                    ./submit.sh 0 ${SYS} $CHAN $ORD $REC "muon_free" 0
+                    COUNTER=$((COUNTER+1))
+                fi
             done
         done
     done
