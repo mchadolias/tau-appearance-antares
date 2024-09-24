@@ -1,20 +1,28 @@
 from pathlib import Path
+import os
 from itertools import product
 import argparse
 
 def ArgumentParser():
     parser = argparse.ArgumentParser()
+    parser.add_argument("--base_directory", type=str, 
+                        default="/sps/km3net/users/mchadoli/master_thesis/tau_appearance/Chi2Profile/",
+                        help="Path to the project directory")
     parser.add_argument("--cut", type=str, default="muon_free",
                         help="Choose the cut to be applied")
     return parser.parse_args()
     
     
-def create_directories(base_dir, cut):
+def output_directory(
+    base_dir,
+    cut
+):
     # Define the categories and possible values
     smeared_level_list = [
         'km3net', 
         '10_percent',
         '50_percent',
+        "70_percent",
         '100_percent',
         '200_percent',
         '500_percent',
@@ -33,7 +41,7 @@ def create_directories(base_dir, cut):
     experiment_list = ['ANTARES']
     
     # Create the base directory
-    base_path = Path(base_dir)
+    base_path = Path(os.path.join(base_dir, "output"))
 
     counter = 0
     # Generate all combinations using itertools.product
@@ -61,13 +69,35 @@ def create_directories(base_dir, cut):
         print("\nAll directories already exist.")
     else:
         print(f"\nCreated {counter} directories.")
-        
+
+def plot_directory(
+    base_directory,
+    cut,
+):
+    base_path = Path(os.path.join(base_directory, "plots", cut))
+
+    # Define the categories and possible values
+    type = ["reconstruction", "study", "smeared"]
+    sys_option = ["systematics", "no_systematics"]
+
+    for sys_option, type in product(sys_option, type):
+        dir_path = base_path / sys_option / type
+
+        # Check if the directory already exists
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {dir_path}")
+        else:
+            print(f"Directory already exists: {dir_path}")
+
 if __name__ == '__main__':
-    # Specify the base directory
-    base_directory = 'output'
     
     args = ArgumentParser()
+    base_directory = args.base_directory
     cut = args.cut
 
     # Create the directory structure
-    create_directories(base_directory, cut)
+    output_directory(base_directory, cut)
+
+    # Create plot directory
+    plot_directory(base_directory, cut)
