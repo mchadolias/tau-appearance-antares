@@ -18,7 +18,35 @@ int main(int argc, char* argv[]){
     string ordering = data["user"]["ordering"];
     string detector = data["variables"]["MClabel"];
     string reco = data["user"]["reco"];
-    string sys_option = data["user"]["sys_option"];
+    string sys_option = data["user"]["systematics"];
+    string cut_option = data["user"]["cut_option"];
+    bool smeared = data["user"]["is_smeared"];
+    
+    cout << "\nParameters: " << endl;
+    cout << "====================" << endl;
+    cout << "Fitting parameter: " << parname << endl;
+    cout << "Number of points: " << npoints << endl;
+    cout << "Parameter range: " << parmin << " - " << parmax << endl;
+    cout << "Experiment: " << experiment << endl;
+    cout << "Type: " << type << endl;
+    cout << "Ordering: " << ordering << endl;
+    cout << "Detector: " << detector << endl;
+    cout << "Reconstruction: " << reco << endl;
+    cout << "Systematics: " << sys_option << endl;
+    cout << "Cuts: " << cut_option << endl;
+    cout << "Smeared: " << smeared << endl;
+    cout << "Both octants: " << both_octants << endl;
+
+    string smear_level;
+    if (smeared){
+        smear_level = data["user"]["smear_level"];
+    }
+
+    if (smear_level == "km3net" || smear_level == "antares") {
+        cout << "Smearing level: " << smear_level << endl;
+    } else {
+        cout << "Smearing level: " << smear_level << " percent" << endl;
+    }
 
     string method = "FitTwoOctants"; 
     if (!both_octants) method = "SimpleFit";
@@ -29,7 +57,19 @@ int main(int argc, char* argv[]){
     else
         interval = (parmax - parmin)/double(npoints-1);
 
-    string path = "output/" + detector + "/" + sys_option  + "/" + reco + "/" + experiment  + "/" + ordering + "/" + type ; 
+    string path;
+    if (smeared){
+        cout << "Fitting smeared data" << endl;
+        if (smear_level != "km3net" && smear_level != "antares") {    
+            path = "output/" + detector + "/"  + cut_option + "/smeared/" + smear_level + "_percent/" + sys_option + "/" +  experiment  + "/" + ordering + "/" + type ;
+        } 
+        else {
+            path = "output/" + detector + "/"  + cut_option + "/smeared/" + smear_level + "/" + sys_option + "/" +  experiment  + "/" + ordering + "/" + type ;
+        }
+    }
+    else { 
+        path = "output/" + detector + "/"  + cut_option + "/unsmeared/" + sys_option  + "/" + reco + "/" + experiment  + "/" + ordering + "/" + type ; 
+    }
     cout << "Output folder: " << path << endl;
 
     for(int i=0; i<npoints; i++){
