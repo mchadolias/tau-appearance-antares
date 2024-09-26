@@ -15,16 +15,16 @@ double counter;
 
 // Resolution function
 // Resolution function for energy
-const double res_en_a = -671.79; // Resolution parameter a 
-const double res_en_b = -6.17; // Resolution parameter b
-const double res_en_c = -21.44; // Resolution parameter c
+const double res_en_a = -640.34; // Resolution parameter a 
+const double res_en_b = -5.88; // Resolution parameter b
+const double res_en_c = -20.44; // Resolution parameter c
 const double res_en_d = -0.41; // Resolution parameter d
 
 // Resolution function for zenith angle
-const double res_dir_a = -18055.90; // Resolution parameter a
-const double res_dir_b = -560789.86; // Resolution parameter b
-const double res_dir_c = -555849.81; // Resolution parameter c
-const double res_dir_d = 0.11; // Resolution parameter d
+const double res_dir_a = -21352.43; // Resolution parameter a
+const double res_dir_b = -561954.61; // Resolution parameter b
+const double res_dir_c = -556675.55; // Resolution parameter c
+const double res_dir_d =  0.09; // Resolution parameter d
 
 double ResolutionFunction(
     double param,
@@ -56,10 +56,16 @@ pair<double, double> SmearVariables(
     }
     else{
         FWHM_en = smear_level * energy;
-        FWHM_dir = smear_level * cos_zenith;
+        FWHM_dir = abs(smear_level * cos_zenith);
     }
 
-    smeared_energy = rand->Gaus(energy, FWHM_en / 2.355);
+    while (true){
+        smeared_energy = rand->Gaus(energy, FWHM_en / 2.355);
+        counter += 1;
+        if (smeared_energy > 0){
+            break;
+        }
+    }
 
     while (true){
         smeared_cos_zenith = rand->Gaus(cos_zenith, FWHM_dir / 2.355);
