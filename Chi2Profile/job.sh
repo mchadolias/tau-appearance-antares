@@ -49,7 +49,7 @@ python3 create_json_file.py  \
         --smear_level $SMEARING_LEVEL 
 
 echo -e "\nCreating output directories"
-python3 create_output_directories.py --cut $CUT
+python3 create_directories.py --cut $CUT
 
 
 # Load modules
@@ -57,6 +57,9 @@ echo -e "\nLoading modules"
 echo "=============================="
 echo "Preparing SWIM environment"
 source $HOME/bash_scripts/swim_env.sh
+
+# Return to the main directory
+cd $WORK/master_thesis/tau_appearance/
 
 # Check if the ROOT file exists
 echo -e "\nChecking if the ROOT file exists"
@@ -88,6 +91,8 @@ else
 fi 
 
 ### Define all json files
+cd ./Chi2Profile
+
 # Define binning json file
 BINNING="./json/ANTARES/binning_ANTARES_16.json"
 
