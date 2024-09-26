@@ -45,7 +45,7 @@ fi
 
 
 ### JOBNAME
-JOBNAME="job_chi2_${CHANNEL}_${ORDERING}_${RECONSTRUCTION}_${CUT_OPTION}_${SYSTEMATICS_FLAG}_${SMEARING_LEVEL}"
+JOBNAME="job_swim_${CHANNEL}_${ORDERING}_${RECONSTRUCTION}_${CUT_OPTION}_${SYSTEMATICS_FLAG}_${SMEARING_LEVEL}"
 
 ### LOGs
 if [ ! -d ${THIS_PROJ_DIR}/logs ]; then
@@ -74,6 +74,7 @@ sbatch \
 --job-name=${JOBNAME} \
 --output=logs/conv_${JOBNAME}_%j.log \
 --mail-user=mchadolias@km3net.de \
+--mail-type=FAIL,TIME_LIMIT,END \
 --export=ALL,\
 SYSTEMATICS=${SYSTEMATICS_FLAG},\
 CHANNEL=${CHANNEL},\
