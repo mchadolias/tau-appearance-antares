@@ -6,7 +6,9 @@
 ###      <SYSTEMATICS_FLAG> : 0 for no systematics, 1 for systematics
 ###      <CHANNEL>   : "STD" or "TAU"
 ###      <ORDERING>     : "NO" or "IO"
-###      <RECONSTRUCTION>: "MC" or "NNFit_full" or "NNFit_dir" or "AAFit_ann" or "AAFit_dedx"
+###      <RECONSTRUCTION>: "MC" or "NNFit_full" or "NNFit_dir" or "AAFit_ann" or "AAFit_dedx" or "Smeared"
+###      <CUT_OPTION>   : example: "muon_free"
+###      <SMEARING_LEVEL>: example: "10" or "50" or "100" or "200" or "500" or "km3net"
 ###
 ### example: ./submit.sh 0 0 STD NO MC
 #
