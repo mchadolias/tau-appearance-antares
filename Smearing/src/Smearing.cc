@@ -48,7 +48,7 @@ pair<double, double> SmearVariables(
 ){
     
     // Smearing parameters
-    double smeared_energy, smeared_cos_zenith, FWHM_en, FWHM_dir;
+    double smeared_energy, smeared_cos_zenith, FWHM_en, FWHM_dir, sigma_dir, sigma_en;
 
     if (UseResolution){
         FWHM_en = ResolutionFunction(energy, res_en_a, res_en_b, res_en_c, res_en_d) * energy;
@@ -59,8 +59,16 @@ pair<double, double> SmearVariables(
         FWHM_dir = abs(smear_level * cos_zenith);
     }
 
+    // Assign sigma values
+    sigma_en = FWHM_en / (2 * TMath::Sqrt(2 * TMath::Log(2)));
+    sigma_dir = FWHM_dir / (2 * TMath::Sqrt(2 * TMath::Log(2)));
+
+    if ((sigma_dir < 0.001) && (!UseResolution)){
+        sigma_dir = 0.001;
+    }
+
     while (true){
-        smeared_energy = rand->Gaus(energy, FWHM_en / 2.355);
+        smeared_energy = rand->Gaus(energy, sigma_en);
         counter += 1;
         if (smeared_energy > 0){
             break;
@@ -68,7 +76,7 @@ pair<double, double> SmearVariables(
     }
 
     while (true){
-        smeared_cos_zenith = rand->Gaus(cos_zenith, FWHM_dir / 2.355);
+        smeared_cos_zenith = rand->Gaus(cos_zenith, sigma_dir);
         counter += 1;
         if (smeared_cos_zenith >= -1 && smeared_cos_zenith <= 1){
             break;
