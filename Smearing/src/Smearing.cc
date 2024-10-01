@@ -8,23 +8,38 @@
 using namespace std;
 
 void usage(){
-  cout << "Usage: ./Smearing <input_file> <output_file> <smear_level> <Resolution>" << endl;  
+  cout << "Usage: ./Smearing <input_file> <output_file> <smear_level> <Resolution> <Assimetric_factor>" << endl;  
 }
 
 double counter; 
 
-// Resolution function
-// Resolution function for energy
-const double res_en_a = -640.34; // Resolution parameter a 
-const double res_en_b = -5.88; // Resolution parameter b
-const double res_en_c = -20.44; // Resolution parameter c
-const double res_en_d = -0.41; // Resolution parameter d
+// Resolution function parameters
+class ANTARES{
+    public:
+        // Resolution function for energy
+        double res_en_a = -640.34;
+        double res_en_b = -5.88;
+        double res_en_c = -20.44;
+        double res_en_d = -0.41;
 
-// Resolution function for zenith angle
-const double res_dir_a = -21352.43; // Resolution parameter a
-const double res_dir_b = -561954.61; // Resolution parameter b
-const double res_dir_c = -556675.55; // Resolution parameter c
-const double res_dir_d =  0.09; // Resolution parameter d
+        // Resolution function for zenith angle
+        double res_dir_a = -21352.43;
+        double res_dir_b = -561954.61;
+        double res_dir_c = -556675.55;
+        double res_dir_d =  0.09;
+};
+
+class ORCA6{
+    public:
+        double res_en = 0.6;
+        double res_dir = 0.2;
+};
+
+class ORCA115{
+    public:
+        double res_en = 0.2;
+        double res_dir = 0.1;
+};
 
 double ResolutionFunction(
     double param,
@@ -44,19 +59,39 @@ pair<double, double> SmearVariables(
     double cos_zenith,
     double smear_level,
     TRandom3 *rand,
-    bool UseResolution = false
+    bool UseResolution = false,
+    double Assimetric_factor = 1,
+    string detector = "ANTARES"
 ){
     
     // Smearing parameters
     double smeared_energy, smeared_cos_zenith, FWHM_en, FWHM_dir, sigma_dir, sigma_en;
 
-    if (UseResolution){
-        FWHM_en = ResolutionFunction(energy, res_en_a, res_en_b, res_en_c, res_en_d) * energy;
-        FWHM_dir = ResolutionFunction(cos_zenith, res_dir_a, res_dir_b, res_dir_c, res_dir_d) * cos_zenith; 
+    // Resolution parameters
+    if (detector == "ANTARES"){
+        
+        if (UseResolution){
+            ANTARES antares;
+            FWHM_en = ResolutionFunction(energy, antares.res_en_a, antares.res_en_b, antares.res_en_c, antares.res_en_d);
+            FWHM_dir = ResolutionFunction(cos_zenith, antares.res_dir_a, antares.res_dir_b, antares.res_dir_c, antares.res_dir_d);
+        }
+        else{
+            FWHM_en =  smear_level * energy * Assimetric_factor;
+            FWHM_dir =  smear_level * cos_zenith;
+        }}
+    else if (detector == "ORCA6"){
+        ORCA6 orca6;
+        FWHM_en = orca6.res_en;
+        FWHM_dir = orca6.res_dir;
+    }
+    else if (detector == "ORCA115"){
+        ORCA115 orca115;
+        FWHM_en = orca115.res_en;
+        FWHM_dir = orca115.res_dir;
     }
     else{
-        FWHM_en = smear_level * energy;
-        FWHM_dir = abs(smear_level * cos_zenith);
+        cout << "Error: Detector not found" << endl;
+        exit(1);
     }
 
     // Assign sigma values
@@ -93,7 +128,7 @@ int main(int argc, char* argv[]){
          << "\nYour input parameters are the following:" << endl;            
 
     // Check input parameters
-    if (argc != 5){
+    if (argc != 7){
         usage();
         exit(1);
     }
@@ -103,8 +138,11 @@ int main(int argc, char* argv[]){
     string output_file = argv[2];
     double smeared_level = atof(argv[3]) / 100;
     string Resolution = argv[4];
+    string detector = argv[5];
+    double Assimetric_factor = stod(argv[6]);
     bool UseResolution;
 
+    cout << "\nChecking input parameters:" << endl;
     for (int i = 1; i < argc; i++){
         cout << "argv[" << i << "] = " << argv[i] << endl;
     }
@@ -162,7 +200,8 @@ int main(int argc, char* argv[]){
     for (unsigned int i = 0; i < ntot; i++){
         oldtree->GetEntry(i);
 
-        pair<double, double> smeared = SmearVariables(energy_true, cos_zenith_true, smeared_level, rand, UseResolution);
+        pair<double, double> smeared = SmearVariables(energy_true, cos_zenith_true, smeared_level,
+         rand, UseResolution, Assimetric_factor, detector);
         smeared_energy = smeared.first;
         smeared_cos_zenith = smeared.second;
 
