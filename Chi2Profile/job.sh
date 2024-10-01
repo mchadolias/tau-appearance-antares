@@ -18,18 +18,11 @@ echo "RECONSTRUCTION: $RECONSTRUCTION"
 echo "SYSTEMATICS: $SYSTEMATICS"
 echo "CUT: $CUT"
 echo "SMEARING_LEVEL: $SMEARING_LEVEL"
-
-if [ $SYSTEMATICS == "0" ]; then
-    SYSTEMATICS="no_systematics"
-    echo "SYSTEMATICS: $SYSTEMATICS"
-else
-    SYSTEMATICS="systematics"
-fi
 echo -e "============================== \n"
 
 # Go to the directory of the script
 cd $WORK/master_thesis/tau_appearance/
-ROOT_PATH=$WORK/Swim/Data/events/ANTARES
+ROOT_PATH=$WORK/Swim/Data/events/
 
 if [ $DRY_RUN == "0" ]; then
     module load python
@@ -64,34 +57,66 @@ cd $WORK/master_thesis/tau_appearance/
 # Check if the ROOT file exists
 echo -e "\nChecking if the ROOT file exists"
 echo "=============================="
+
 if [ $RECONSTRUCTION == "Smeared" ]; then
-    if [ -f "$ROOT_PATH/antares_w_nnfit_FINAL1_smeared_${SMEARING_LEVEL}.root" ]; then
+
+    # Check if output directory exists, if not create it
+    if [ ! -d "$ROOT_PATH/ANTARES_Smeared_${SMEARING_LEVEL}" ]; then
+        echo "Creating output directory: Smeared_${SMEARING_LEVEL}"
+        mkdir $ROOT_PATH/ANTARES_Smeared_${SMEARING_LEVEL}
+    fi
+
+    # Check if the ROOT file exists
+    if [ -f "$ROOT_PATH/ANTARES_Smeared_${SMEARING_LEVEL}/antares_smeared_${SMEARING_LEVEL}.root" ]; then
         echo "ROOT file: antares_w_nnfit_FINAL1_smeared_${SMEARING_LEVEL}.root already exists"
     else
         echo "ROOT file does not exist, running Smearing code"
         echo "SMEARING_LEVEL: $SMEARING_LEVEL"
+        ASSYMETRIC_FACTOR=1.0
 
-        INPUT_FILE="$ROOT_PATH/antares_w_nnfit_FINAL1.root"
-        OUTPUT_FILE="$ROOT_PATH/antares_w_nnfit_FINAL1_smeared_${SMEARING_LEVEL}.root"
+        INPUT_FILE="$ROOT_PATH/ANTARES/antares_w_nnfit_FINAL1.root"
+        OUTPUT_FILE="$ROOT_PATH/ANTARES_Smeared_${SMEARING_LEVEL}/antares_smeared_${SMEARING_LEVEL}.root"
 
         if [ $SMEARING_LEVEL == "antares" ]; then
             RESOLUTION_FLAG="Y"
+            DETECTOR="ANTARES"
+        elif [ $SMEARING_LEVEL == "orca6" ]; then
+            RESOLUTION_FLAG="N"
+            DETECTOR="ORCA6"
+        elif [ $SMEARING_LEVEL == "orca115" ]; then
+            RESOLUTION_FLAG="N"
+            DETECTOR="ORCA115"
         else
+            DETECTOR="ANTARES"
             RESOLUTION_FLAG="N"
         fi
 
-        ./Smearing/bin/Smearing $INPUT_FILE $OUTPUT_FILE $SMEARING_LEVEL $RESOLUTION_FLAG
+        ./Smearing/bin/Smearing $INPUT_FILE $OUTPUT_FILE $SMEARING_LEVEL $RESOLUTION_FLAG $DETECTOR $ASSYMETRIC_FACTOR
 
-        echo "ROOT file: antares_w_nnfit_FINAL1_smeared_${SMEARING_LEVEL}.root created"
+        echo "ROOT file: antares_smeared_${SMEARING_LEVEL}.root created"
         echo "Add CAN to the root file"
         ./Smearing/bin/addCanANTARES $OUTPUT_FILE
     fi
 else 
-    echo "ROOT file: antares_w_nnfit_FINAL1.root already exists"
+    # Check if the ROOT file exists
+    if [ -f "$ROOT_PATH/ANTARES/antares_w_nnfit_FINAL1.root" ]; then
+        echo "ROOT file: antares_w_nnfit_FINAL1.root already exists"
+    else 
+        echo "ROOT file does not exist, exiting"
+        exit
+    fi
 fi 
 
+# Run the Chi2Profile code
 ### Define all json files
 cd ./Chi2Profile
+
+if [ $SYSTEMATICS == "0" ]; then
+    SYSTEMATICS="no_systematics"
+    echo "SYSTEMATICS: $SYSTEMATICS"
+else
+    SYSTEMATICS="systematics"
+fi
 
 # Define binning json file
 BINNING="./json/ANTARES/binning_ANTARES_16.json"
@@ -135,7 +160,7 @@ elif [ $RECONSTRUCTION == "AAFit_ann" ]; then
 elif [ $RECONSTRUCTION == "AAFit_dedx" ]; then
     CLASSES="./json/ANTARES/classes_ANTARES_${CUT}_AAFit_dedx.json"
 elif [ $RECONSTRUCTION == "Smeared" ]; then
-    CLASSES="./json/ANTARES/classes_ANTARES_${CUT}_Smeared.json"
+    CLASSES="./json/ANTARES/classes_ANTARES_${CUT}_Smeared_${SMEARING_LEVEL}.json"
 else
     echo "RECONSTRUCTION type not recognized"
     exit
