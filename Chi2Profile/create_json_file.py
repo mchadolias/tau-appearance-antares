@@ -12,9 +12,9 @@ text_conversion = {
 reco_info = {"MC" : {"energy": "energy_recoTrue", "zenith": "cos_zenith_recoTrue", "biy": "bjorken_y_recoTrue"},
              "AAFit_dedx" : {"energy": "energy_aafit_dEdX_CEA", "zenith": "aafit_cos_zenith", "biy": "aafit_bjy"},
              "AAFit_ann" : {"energy": "energy_aafit_ANN_ECAP", "zenith": "aafit_cos_zenith", "biy": "aafit_bjy"},
-             "NNFit_full" : {"energy": "Energy", "zenith": "cos_zenith", "biy":"NNFit_Bjorken_y"},
-             "NNFit_dir": {"energy": "energy_recoTrue", "zenith": "cos_zenith", "biy":"NNFit_Bjorken_y"},
-              "Smeared": {"energy": "energy_smeared", "zenith": "cos_zenith_smeared", "biy": "bjorken_y_recoTrue"},
+             "NNFit_full" : {"energy": "NNFitShower_Energy", "zenith": "NNFitShower_cos_zenith", "biy":"NNFit_Bjorken_y"},
+             "NNFit_dir": {"energy": "energy_recoTrue", "zenith": "NNFitShower_cos_zenith", "biy":"NNFit_Bjorken_y"},
+             "Smeared": {"energy": "energy_smeared", "zenith": "cos_zenith_smeared", "biy": "bjorken_y_recoTrue"},
             }
 
 def ArgumentParser():
@@ -23,7 +23,7 @@ def ArgumentParser():
                         help="Choose the channel to probe. STD corresponds to Std and TAU corresponds to Tau") 
     parser.add_argument("--reco", type=str,
                         help="Choose the reconstruction algorithm used to reconstruct the events. \
-                        Options: MC, AAFit_dedx, AAFit_ann, NNFIT_full, NNFIT_dir")
+                        Options: MC, AAFit_dedx, AAFit_ann, NNFit_full, NNFit_dir")
     parser.add_argument("--order", type=str,   
                         help="Choose the mass ordering. Options: NO, IO")
     parser.add_argument("--systematics", type=str,
@@ -32,8 +32,6 @@ def ArgumentParser():
                         help="Choose the cut to be applied")
     parser.add_argument("--smear_level", type=str,
                         help="Choose the smear level to be applied")
-    parser.add_argument("--npoints", type=int, default=21,
-                        help="Choose the number of points to be used in the user json file")
     return parser.parse_args()
     
 def create_json_User(
@@ -142,9 +140,9 @@ def create_json_variables(
         else:
             json_file = {
               "variables": {
-                  "MClabel": "ANTARES",
+                  "MClabel": f"ANTARES_Smeared_{smear_level}",
                   "SelectedEvents_filename": [
-                      f"antares_w_nnfit_FINAL1_smeared_{smear_level}.root"
+                      f"antares_smeared_{smear_level}.root"
                   ],
                   "exposure_nyears": 12.433,
                   "output_path": "output",
@@ -181,86 +179,58 @@ def create_json_classes(
     json_path: str,
     reco: str,
     cut: str,
+    smear_level: str,
 ):    
-      if reco == "NNFit_full":
-        json_file = {
-        "classes": [
-        {
-          "name": "tracks",
-          "general_cut": "((abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && (cos_zenith_recoTrue < 0)",
-          "muon_loose_cut": "((abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && (cos_zenith_recoTrue < 0)",
-          "reconstructions": { 
-              "E": f"NNFitTrack_{reco_info[reco]['energy']}",
-              "cosT": f"NNFitTrack_{reco_info[reco]['zenith']}",
-              "By": f"{reco_info[reco]['biy']}"
-            },
-          "ClassNorm": "TrackNorm"
-        },
-        {    
-          "name": "showers",
-          "general_cut": "(!(abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && (cos_zenith_recoTrue < 0)",
-          "muon_loose_cut": "(!(abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && (cos_zenith_recoTrue < 0)",
-          "reconstructions": {
-              "E": f"NNFitShower_{reco_info[reco]['energy']}",
-              "cosT": f"NNFitShower_{reco_info[reco]['zenith']}",
-              "By": f"{reco_info[reco]['biy']}"
-            },
-          "ClassNorm": "ShowerNorm"
-        }]}
-      elif reco == "NNFit_dir":
-                json_file = {
-        "classes": [
-        {
-          "name": "tracks",
-          "general_cut": "((abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && (cos_zenith_recoTrue < 0)",
-          "muon_loose_cut": "((abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && (cos_zenith_recoTrue < 0)",
-          "reconstructions": { 
-              "E": f"{reco_info[reco]['energy']}",
-              "cosT": f"NNFitTrack_{reco_info[reco]['zenith']}",
-              "By": f"{reco_info[reco]['biy']}"
-            },
-          "ClassNorm": "TrackNorm"
-        },
-        {    
-          "name": "showers",
-          "general_cut": "(!(abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && (cos_zenith_recoTrue < 0)",
-          "muon_loose_cut": "(!(abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && (cos_zenith_recoTrue < 0)",
-          "reconstructions": {
-              "E": f"{reco_info[reco]['energy']}",
-              "cosT": f"NNFitShower_{reco_info[reco]['zenith']}",
-              "By": f"{reco_info[reco]['biy']}"
-            },
-          "ClassNorm": "ShowerNorm"
-        }]}
-        
-      else:
-                json_file = {
-        "classes": [
-        {
-          "name": "tracks",
-          "general_cut": "((abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && (cos_zenith_recoTrue < 0)",
-          "muon_loose_cut": "((abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && (cos_zenith_recoTrue < 0)",
-          "reconstructions": { 
-              "E": f"{reco_info[reco]['energy']}",
-              "cosT": f"{reco_info[reco]['zenith']}",
-              "By": f"{reco_info[reco]['biy']}"
-            },
-          "ClassNorm": "TrackNorm"
-        },
-        {    
-          "name": "showers",
-          "general_cut": "(!(abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && (cos_zenith_recoTrue < 0)",
-          "muon_loose_cut": "(!(abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && (cos_zenith_recoTrue < 0)",
-          "reconstructions": {
-              "E": f"{reco_info[reco]['energy']}",
-              "cosT": f"{reco_info[reco]['zenith']}",
-              "By": f"{reco_info[reco]['biy']}"
-            },
-          "ClassNorm": "ShowerNorm"
-        }]}
+    if (cut == "muon_free"):
+        selection = "cos_zenith_recoTrue < 0"
+    elif (cut == "is_nnfit"):
+        selection = "NNFitShower_cos_zenith < 0"
+    elif (cut == "is_aafit"):
+        selection = "(aafit_flag == 1) && (cos_zenith_recoTrue < 0)"
+    elif (cut == "hard_cut"):
+        selection = "(cos_zenith_recoTrue < -0.4) && (bbfit_flag == 1)"
 
+    json_file = {
+    "classes": [
+    {
+      "name": "tracks",
+      "general_cut": f"((abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && ({selection})",
+      "muon_loose_cut": f"((abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && ({selection})",
+      "reconstructions": { 
+          "E": f"{reco_info[reco]['energy']}",
+          "cosT": f"{reco_info[reco]['zenith']}",
+          "By": f"{reco_info[reco]['biy']}"
+        },
+      "ClassNorm": "TrackNorm"
+    },
+    {    
+      "name": "showers",
+      "general_cut": f"(!(abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && ({selection})",
+      "muon_loose_cut": f"(!(abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && ({selection})",
+      "reconstructions": {
+          "E": f"{reco_info[reco]['energy']}",
+          "cosT": f"{reco_info[reco]['zenith']}",
+          "By": f"{reco_info[reco]['biy']}"
+        },
+      "ClassNorm": "ShowerNorm"
+    }]}
+
+    if ((reco == "NNFit_full")):
+        json_file["classes"][0]["reconstructions"]["E"] = "NNFitTrack_Energy"
+        json_file["classes"][0]["reconstructions"]["cosT"] = "NNFitTrack_cos_zenith"
+    elif ((reco == "NNFit_dir")):
+        json_file["classes"][0]["reconstructions"]["cosT"] = "NNFitTrack_cos_zenith"
+      
         
-        
+    if (reco == "Smeared"):
+      #Check if file already exists
+      if os.path.exists(os.path.join(json_path, f'ANTARES/classes_ANTARES_{cut}_{reco}_{smear_level}.json')):
+          print(f"File already exists: classes_ANTARES_{cut}_{reco}_{smear_level}.json")
+      else:
+          with open(os.path.join(json_path, f'ANTARES/classes_ANTARES_{cut}_{reco}_{smear_level}.json'), 'w') as f:
+              json.dump(json_file, f, indent=4)
+              print(f"Created file: classes_ANTARES_{cut}_{reco}_{smear_level}.json")
+    else:
       # Check if file already exists
       if os.path.exists(os.path.join(json_path, f'ANTARES/classes_ANTARES_{cut}_{reco}.json')):
           print(f"File already exists: classes_ANTARES_{reco}.json")
@@ -307,10 +277,6 @@ def create_json_params(
             with open(os.path.join(json_path, f'PARAMETERS/parameters_Data_NO_Model_{order}_{systematics}_{ff}.json'), 'w') as f:
                 json.dump(json_file, f, indent=4)
                 print(f"Created file: parameters_Data_NO_Model_{order}_{systematics}_{ff}.json")
-    
-    # Remove the template file
-    #print(f"Removing template file: params_template_{order}.json")   
-    #os.remove(os.path.join(json_path, f'PARAMETERS/params_template_{order}.json'))
 
 def create_param_template(
     json_path: str,
@@ -624,7 +590,7 @@ def create_json_binning(
         "EmaxReco": 100,
 
         "ncosTbinsTrue": 40,
-        "ncosTbinsReco": 10,
+        "ncosTbinsReco": 20,
 
         "nBybinsTrue": 1,
         "nBybinsReco": 1,
@@ -662,17 +628,16 @@ def run_json_files(
     create_json_variables(channel, json_path, smear_level)
 
     print("\nCreating JSON classes files...")
-    create_json_classes(json_path, reco, cut)
+    create_json_classes(json_path, reco, cut, smear_level)
     
     print("\nCreating JSON parameters files...")
     create_json_params(json_path, order, systematics)
     
     print("\nCreate JSON binning files...")
     create_json_binning(json_path, 15)
-    
 
-    
-if __name__ == '__main__':
+
+def main():
     # Define the parameters
     arg = ArgumentParser()
     channel = arg.channel
@@ -681,15 +646,15 @@ if __name__ == '__main__':
     systematics = arg.systematics
     cut_option = arg.cut
     smear_level = arg.smear_level
-    npoints = arg.npoints
 
+    print("Starting the process...")
+    print("\nArguments provided:")
     print(f"Channel: {channel}")
     print(f"Reconstruction: {reco}")
     print(f"Mass ordering: {order}")
     print(f"Systematics: {systematics}")
     print(f"Cut option: {cut_option}")
-    print(f"Smear level: {smear_level}")
-    print(f"Number of points: {npoints}\n")
+    print(f"Smear level: {smear_level}\n")
     
     systematics = "systematics" if systematics == "1" else "no_systematics"
     
@@ -711,10 +676,13 @@ if __name__ == '__main__':
         os.makedirs(os.path.join(json_path, 'ANTARES'))
     elif not os.path.exists(os.path.join(json_path, 'PARAMETERS')):
         os.makedirs(os.path.join(json_path, 'PARAMETERS'))
-        
+      
     if systematics == "no_systematics":
-      npoints = 20
+      npoints = 21
     elif systematics == "systematics":
       npoints = 15
-    
+        
     run_json_files(channel, reco, order, systematics, json_path, npoints, cut_option, smear_level)
+    
+if __name__ == '__main__':
+    main()
