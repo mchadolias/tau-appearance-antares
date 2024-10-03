@@ -32,6 +32,10 @@ def ArgumentParser():
                         help="Choose the cut to be applied")
     parser.add_argument("--smear_level", type=str,
                         help="Choose the smear level to be applied")
+    parser.add_argument("--assym_energy", type=str, default="1.0",
+                        help="Choose the asymmetry energy to be applied")
+    parser.add_argument("--assym_direction", type=str, default="1.0",
+                        help="Choose the asymmetry direction to be applied")
     return parser.parse_args()
     
 def create_json_User(
@@ -99,6 +103,8 @@ def create_json_variables(
     channel: str,
     json_path: str,
     smear_level: str,
+    asymetric_factor_direction: str = "1.0",
+    asymetric_factor_energy: str = "1.0",
 ):    
         if (smear_level == "0"):
           json_file = {
@@ -137,6 +143,43 @@ def create_json_variables(
               with open(os.path.join(json_path, f'ANTARES/variables_ANTARES_{channel}.json'), 'w') as f:
                   json.dump(json_file, f, indent=4)
                   print(f"Created file: variables_ANTARES_{channel}.json")
+        elif((smear_level == "antares") & (asymetric_factor_direction != "1.0")):
+            json_file = {
+              "variables": {
+                  "MClabel": f"ANTARES_Smeared_{smear_level}_{asymetric_factor_direction}_{asymetric_factor_energy}",
+                  "SelectedEvents_filename": [
+                      f"antares_smeared_{smear_level}_{asymetric_factor_direction}_{asymetric_factor_energy}.root"
+                  ],
+                  "exposure_nyears": 12.433,
+                  "output_path": "output",
+                  "flux_path": "flux/Honda2014_frj-solmin-aa_ORCA6_hist.root",
+                  "by_path": "xsection/dummy_by_ORCA6.root",
+                  "crossfile_InteractingEvents_path": "xsection/xsection_gsg_v5r1_SWIM.root",
+                  "crossfile_RespMatrix_path": "xsection/xsection_gsg_v5r1_SWIM.root",
+                  "PREMTable": "prem_default.txt",
+                  "ExtensiveOutput": True,
+                  "EnableMCError": True,
+                  "UseW2Method": True,
+                  "PlotEffMass": False,
+                  "Verbose": False,
+                  "SetMuons": False,
+                  "EnableSmearMachine": False,
+                  "Analysis_Type": "Asimov",
+                  "Experiment_Type": text_conversion[channel],
+                  "PseudoExperiment_seed": 11,
+                  "SetBootstrap": False,
+                  "Bootstrap_seed": 1,
+                  "Bootstrap_Fraction": 1
+              }
+            }
+          
+            # Check if file already exists
+            if os.path.exists(os.path.join(json_path, f'ANTARES/variables_ANTARES_{channel}_Smeared_{smear_level}_{asymetric_factor_direction}_{asymetric_factor_energy}.json')):
+                print(f"File already exists: variables_ANTARES_{channel}_Smeared_{smear_level}_{asymetric_factor_direction}_{asymetric_factor_energy}.json")
+            else:
+                with open(os.path.join(json_path, f'ANTARES/variables_ANTARES_{channel}_Smeared_{smear_level}_{asymetric_factor_direction}_{asymetric_factor_energy}.json'), 'w') as f:
+                    json.dump(json_file, f, indent=4)
+                    print(f"Created file: variables_ANTARES_{channel}_Smeared_{smear_level}_{asymetric_factor_direction}_{asymetric_factor_energy}.json")
         else:
             json_file = {
               "variables": {
@@ -166,14 +209,15 @@ def create_json_variables(
                   "Bootstrap_Fraction": 1
               }
             }
-          
+
             # Check if file already exists
-            if os.path.exists(os.path.join(json_path, f'ANTARES/variables_ANTARES_{channel}_Smear_{smear_level}.json')):
-                print(f"File already exists: variables_ANTARES_{channel}_Smear_{smear_level}.json")
+            if os.path.exists(os.path.join(json_path, f'ANTARES/variables_ANTARES_{channel}_Smeared_{smear_level}.json')):
+                print(f"File already exists: variables_ANTARES_{channel}_Smeared_{smear_level}.json")
             else:
-                with open(os.path.join(json_path, f'ANTARES/variables_ANTARES_{channel}_Smear_{smear_level}.json'), 'w') as f:
+                with open(os.path.join(json_path, f'ANTARES/variables_ANTARES_{channel}_Smeared_{smear_level}.json'), 'w') as f:
                     json.dump(json_file, f, indent=4)
-                    print(f"Created file: variables_ANTARES_{channel}_Smear_{smear_level}.json")
+                    print(f"Created file: variables_ANTARES_{channel}_Smeared_{smear_level}.json")
+
 
 def create_json_classes(
     json_path: str,
@@ -590,7 +634,7 @@ def create_json_binning(
         "EmaxReco": 100,
 
         "ncosTbinsTrue": 40,
-        "ncosTbinsReco": 20,
+        "ncosTbinsReco": 25,
 
         "nBybinsTrue": 1,
         "nBybinsReco": 1,
@@ -619,13 +663,15 @@ def run_json_files(
     npoints: int,
     cut: str,
     smear_level: str,
+    assym_energy: str,
+    assym_direction: str,
 ):
     # Create the json files
     print("Creating JSON User files...")
     create_json_User(reco, order, channel, systematics, json_path, cut, npoints, smear_level)
 
     print("\nCreating JSON variables files...")
-    create_json_variables(channel, json_path, smear_level)
+    create_json_variables(channel, json_path, smear_level, assym_energy, assym_direction)
 
     print("\nCreating JSON classes files...")
     create_json_classes(json_path, reco, cut, smear_level)
@@ -646,6 +692,8 @@ def main():
     systematics = arg.systematics
     cut_option = arg.cut
     smear_level = arg.smear_level
+    assym_energy = arg.assym_energy
+    assym_direction = arg.assym_direction
 
     print("Starting the process...")
     print("\nArguments provided:")
@@ -682,7 +730,7 @@ def main():
     elif systematics == "systematics":
       npoints = 15
         
-    run_json_files(channel, reco, order, systematics, json_path, npoints, cut_option, smear_level)
+    run_json_files(channel, reco, order, systematics, json_path, npoints, cut_option, smear_level, assym_energy, assym_direction)
     
 if __name__ == '__main__':
     main()
