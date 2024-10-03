@@ -16,7 +16,7 @@ int main(int argc, char* argv[]){
     string experiment = data["user"]["experiment"];
     string type = data["user"]["type"];
     string ordering = data["user"]["ordering"];
-    string detector = data["variables"]["MClabel"];
+    string detector = "ANTARES";
     string reco = data["user"]["reco"];
     string sys_option = data["user"]["systematics"];
     string cut_option = data["user"]["cut_option"];
@@ -60,7 +60,7 @@ int main(int argc, char* argv[]){
     string path;
     if (smeared){
         cout << "Fitting smeared data" << endl;
-        if (smear_level != "km3net" && smear_level != "antares") {    
+        if (smear_level != "orca6" && smear_level != "antares" && smear_level != "orca115") {    
             path = "output/" + detector + "/"  + cut_option + "/smeared/" + smear_level + "_percent/" + sys_option + "/" +  experiment  + "/" + ordering + "/" + type ;
         } 
         else {
