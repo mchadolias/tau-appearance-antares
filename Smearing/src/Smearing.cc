@@ -60,7 +60,8 @@ pair<double, double> SmearVariables(
     double smear_level,
     TRandom3 *rand,
     bool UseResolution = false,
-    double Assimetric_factor = 1,
+    double Assimetric_factor_en = 1,
+    double Assimetric_factor_dir = 1,
     string detector = "ANTARES"
 ){
     
@@ -76,8 +77,8 @@ pair<double, double> SmearVariables(
             FWHM_dir = ResolutionFunction(cos_zenith, antares.res_dir_a, antares.res_dir_b, antares.res_dir_c, antares.res_dir_d);
         }
         else{
-            FWHM_en =  smear_level * energy * Assimetric_factor;
-            FWHM_dir =  smear_level * cos_zenith;
+            FWHM_en =  smear_level * energy * Assimetric_factor_en;
+            FWHM_dir =  smear_level * cos_zenith * Assimetric_factor_dir;
         }}
     else if (detector == "ORCA6"){
         ORCA6 orca6;
@@ -98,9 +99,8 @@ pair<double, double> SmearVariables(
     sigma_en = FWHM_en / (2 * TMath::Sqrt(2 * TMath::Log(2)));
     sigma_dir = FWHM_dir / (2 * TMath::Sqrt(2 * TMath::Log(2)));
 
-    if ((sigma_dir < 0.001) && (!UseResolution)){
+    if (sigma_dir < 0.001)
         sigma_dir = 0.001;
-    }
 
     while (true){
         smeared_energy = rand->Gaus(energy, sigma_en);
@@ -128,7 +128,7 @@ int main(int argc, char* argv[]){
          << "\nYour input parameters are the following:" << endl;            
 
     // Check input parameters
-    if (argc != 7){
+    if (argc != 8){
         usage();
         exit(1);
     }
@@ -139,7 +139,8 @@ int main(int argc, char* argv[]){
     double smeared_level = atof(argv[3]) / 100;
     string Resolution = argv[4];
     string detector = argv[5];
-    double Assimetric_factor = stod(argv[6]);
+    double Assimetric_factor_en = stod(argv[6]);
+    double Assimetric_factor_dir = stod(argv[7]);
     bool UseResolution;
 
     cout << "\nChecking input parameters:" << endl;
@@ -188,7 +189,8 @@ int main(int argc, char* argv[]){
 
 
     // Set random seed
-    TRandom3 *rand = new TRandom3(0);
+    int unique_seed = TRandom3(0).GetSeed();
+    TRandom3 *rand = new TRandom3(unique_seed);
 
     unsigned int ntot = (Int_t)oldtree->GetEntries();
 
@@ -201,7 +203,7 @@ int main(int argc, char* argv[]){
         oldtree->GetEntry(i);
 
         pair<double, double> smeared = SmearVariables(energy_true, cos_zenith_true, smeared_level,
-         rand, UseResolution, Assimetric_factor, detector);
+         rand, UseResolution, Assimetric_factor_en, Assimetric_factor_dir, detector);
         smeared_energy = smeared.first;
         smeared_cos_zenith = smeared.second;
 
