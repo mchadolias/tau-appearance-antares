@@ -667,7 +667,7 @@ def run_json_files(
     assym_direction: str,
 ):
     # Create the json files
-    print("Creating JSON User files...")
+    print("\nCreating JSON User files...")
     create_json_User(reco, order, channel, systematics, json_path, cut, npoints, smear_level)
 
     print("\nCreating JSON variables files...")
@@ -695,15 +695,10 @@ def main():
     assym_energy = arg.assym_energy
     assym_direction = arg.assym_direction
 
-    print("Starting the process...")
-    print("\nArguments provided:")
-    print(f"Channel: {channel}")
-    print(f"Reconstruction: {reco}")
-    print(f"Mass ordering: {order}")
-    print(f"Systematics: {systematics}")
-    print(f"Cut option: {cut_option}")
-    print(f"Smear level: {smear_level}\n")
-    
+    print("Arguments provided:")
+    for key, value in vars(arg).items():
+        print(f"{key}: {value}")
+
     systematics = "systematics" if systematics == "1" else "no_systematics"
     
     if (channel is None) or (reco is None) or (order is None) or (systematics is None):

@@ -56,7 +56,6 @@ def output_directory(
     base_dir,
     cut
 ):
-    
     # Create the base directory
     base_path = Path(os.path.join(base_dir, "output", "ANTARES", cut))
 
@@ -79,7 +78,7 @@ def output_directory(
             print(f"Created directory: {dir_path}")
     
     if counter == 0:
-        print("\nAll directories already exist.")
+        print("\tAll directories already exist.")
     else:
         print(f"\nCreated {counter} directories.")
 
@@ -92,6 +91,8 @@ def plot_directory(
     # Define the categories and possible values
     type = ["reconstruction", "study", "smeared"]
 
+    counter = 0
+
     for sys_option, type in product(SYS_LIST, type):
         dir_path = base_path / sys_option / type
 
@@ -99,18 +100,25 @@ def plot_directory(
         if not dir_path.exists():
             dir_path.mkdir(parents=True, exist_ok=True)
             print(f"Created directory: {dir_path}")
-        else:
-            print(f"Directory already exists: {dir_path}")
+
+    if counter == 0:
+        print("\tAll directories already exist.")
 
 def main():
     args = ArgumentParser()
     base_directory = args.base_directory
     cut = args.cut
     
+    # Print the project directory
+    print(f"Project directory: {base_directory}")
+    print(f"Checking directories for the cut: {cut}")
+
     # Create the directory structure
+    print("--Creating plot directories")
     output_directory(base_directory, cut)
 
     # Create plot directory
+    print("--Creating output directories")    
     plot_directory(base_directory, cut)
 
 if __name__ == "__main__":
