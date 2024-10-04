@@ -17,11 +17,11 @@ SMEARED_LEVEL = [
     'orca6',
     'orca115', 
     '10_percent',
+    '30_percent',
     '50_percent',
     "70_percent",
+    "90_percent",
     '100_percent',
-    '200_percent',
-    '500_percent',
     "antares"
 ]
     
