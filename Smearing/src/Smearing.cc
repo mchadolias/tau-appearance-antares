@@ -77,8 +77,8 @@ pair<double, double> SmearVariables(
             FWHM_dir = ResolutionFunction(cos_zenith, antares.res_dir_a, antares.res_dir_b, antares.res_dir_c, antares.res_dir_d);
         }
         else{
-            FWHM_en =  smear_level * energy * Assimetric_factor_en;
-            FWHM_dir =  smear_level * cos_zenith * Assimetric_factor_dir;
+            FWHM_en =  smear_level * energy;
+            FWHM_dir =  smear_level * cos_zenith;
         }}
     else if (detector == "ORCA6"){
         ORCA6 orca6;
@@ -96,8 +96,8 @@ pair<double, double> SmearVariables(
     }
 
     // Assign sigma values
-    sigma_en = FWHM_en / (2 * TMath::Sqrt(2 * TMath::Log(2)));
-    sigma_dir = FWHM_dir / (2 * TMath::Sqrt(2 * TMath::Log(2)));
+    sigma_en = FWHM_en / (2 * TMath::Sqrt(2 * TMath::Log(2))) * Assimetric_factor_en;
+    sigma_dir = FWHM_dir / (2 * TMath::Sqrt(2 * TMath::Log(2))) * Assimetric_factor_dir;
 
     if (sigma_dir < 0.001)
         sigma_dir = 0.001;
