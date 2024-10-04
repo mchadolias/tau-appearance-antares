@@ -18,11 +18,13 @@ echo "RECONSTRUCTION: $RECONSTRUCTION"
 echo "SYSTEMATICS: $SYSTEMATICS"
 echo "CUT: $CUT"
 echo "SMEARING_LEVEL: $SMEARING_LEVEL"
+echo "ASSYMETRIC_FACTOR_DIR: $ASSYMETRIC_FACTOR_DIR"
+echo "ASSYMETRIC_FACTOR_ENERGY: $ASSYMETRIC_FACTOR_ENERGY"
 echo -e "============================== \n"
 
 # Go to the directory of the script
 cd $WORK/master_thesis/tau_appearance/
-ROOT_PATH=$WORK/Swim/Data/events/
+ROOT_PATH=$WORK/Swim/Data/events
 
 if [ $DRY_RUN == "0" ]; then
     module load python
@@ -39,9 +41,12 @@ python3 create_json_file.py  \
         --reco $RECONSTRUCTION \
         --cut $CUT \
         --systematics $SYSTEMATICS \
-        --smear_level $SMEARING_LEVEL 
+        --smear_level $SMEARING_LEVEL \
+        --assym_energy $ASSYMETRIC_FACTOR_DIR \
+        --assym_direction $ASSYMETRIC_FACTOR_ENERGY
 
-echo -e "\nCreating output directories"
+echo -e "\nCreating directories..."
+echo "=============================="
 python3 create_directories.py --cut $CUT
 
 
@@ -60,10 +65,14 @@ echo "=============================="
 
 if [ $RECONSTRUCTION == "Smeared" ]; then
 
-    # Check if output directory exists, if not create it
-    if [ ! -d "$ROOT_PATH/ANTARES_Smeared_${SMEARING_LEVEL}" ]; then
-        echo "Creating output directory: Smeared_${SMEARING_LEVEL}"
+    if [[ $SMEARING_LEVEL == "antares" && $ASSYMETRIC_FACTOR_DIR != "1.0" ]]; then
+        mkdir $ROOT_PATH/ANTARES_Smeared_${SMEARING_LEVEL}_${ASSYMETRIC_FACTOR_DIR}_${ASSYMETRIC_FACTOR_ENERGY}
+        echo "Creating output directory: Smeared_${SMEARING_LEVEL}_${ASSYMETRIC_FACTOR_DIR}_${ASSYMETRIC_FACTOR_ENERGY}"
+    elif [ -d "$ROOT_PATH/ANTARES_Smeared_${SMEARING_LEVEL}" ]; then
+        echo "Output directory: ANTARES_Smeared_${SMEARING_LEVEL} already exists"
+    else
         mkdir $ROOT_PATH/ANTARES_Smeared_${SMEARING_LEVEL}
+        echo "Creating output directory: ANTARES_Smeared_${SMEARING_LEVEL}"
     fi
 
     # Check if the ROOT file exists
@@ -72,10 +81,14 @@ if [ $RECONSTRUCTION == "Smeared" ]; then
     else
         echo "ROOT file does not exist, running Smearing code"
         echo "SMEARING_LEVEL: $SMEARING_LEVEL"
-        ASSYMETRIC_FACTOR=1.0
 
         INPUT_FILE="$ROOT_PATH/ANTARES/antares_w_nnfit_FINAL1.root"
-        OUTPUT_FILE="$ROOT_PATH/ANTARES_Smeared_${SMEARING_LEVEL}/antares_smeared_${SMEARING_LEVEL}.root"
+
+        if [[ $SMEARING_LEVEL == "antares" && $ASSYMETRIC_FACTOR_DIR != "1.0" ]]; then
+            OUTPUT_FILE="$ROOT_PATH/ANTARES_Smeared_${SMEARING_LEVEL}_${ASSYMETRIC_FACTOR_DIR}_${ASSYMETRIC_FACTOR_ENERGY}/antares_smeared_${SMEARING_LEVEL}_${ASSYMETRIC_FACTOR_DIR}_${ASSYMETRIC_FACTOR_ENERGY}.root"
+        else
+            OUTPUT_FILE="$ROOT_PATH/ANTARES_Smeared_${SMEARING_LEVEL}/antares_smeared_${SMEARING_LEVEL}.root"
+        fi
 
         if [ $SMEARING_LEVEL == "antares" ]; then
             RESOLUTION_FLAG="Y"
@@ -91,7 +104,7 @@ if [ $RECONSTRUCTION == "Smeared" ]; then
             RESOLUTION_FLAG="N"
         fi
 
-        ./Smearing/bin/Smearing $INPUT_FILE $OUTPUT_FILE $SMEARING_LEVEL $RESOLUTION_FLAG $DETECTOR $ASSYMETRIC_FACTOR
+        ./Smearing/bin/Smearing $INPUT_FILE $OUTPUT_FILE $SMEARING_LEVEL $RESOLUTION_FLAG $DETECTOR $ASSYMETRIC_FACTOR_ENERGY $ASSYMETRIC_FACTOR_DIR
 
         echo "ROOT file: antares_smeared_${SMEARING_LEVEL}.root created"
         echo "Add CAN to the root file"
@@ -127,12 +140,17 @@ if [ $RECONSTRUCTION == "Smeared" ]; then
     USER="./json/USER/User_${RECONSTRUCTION}_${SMEARING_LEVEL}_${CHANNEL}_${ORDERING}_${CUT}_${SYSTEMATICS}_free.json"
 
     if [ $CHANNEL == "STD" ]; then
-        VARIABLES="./json/ANTARES/variables_ANTARES_STD_Smear_${SMEARING_LEVEL}.json"
+        VARIABLES="./json/ANTARES/variables_ANTARES_STD_Smeared_${SMEARING_LEVEL}.json"
     elif [ $CHANNEL == "TAU" ]; then
-        VARIABLES="./json/ANTARES/variables_ANTARES_TAU_Smear_${SMEARING_LEVEL}.json"
+        VARIABLES="./json/ANTARES/variables_ANTARES_TAU_Smeared_${SMEARING_LEVEL}.json"
     else
         echo "CHANNEL type not recognized"
         exit
+    fi
+
+    if [ $SMEARING_LEVEL == "antares" && $ASSYMETRIC_FACTOR_DIR != "1.0" ]; then
+        ## Add the assymetric factor to the variable name in the json file
+        VARIABLES="./json/ANTARES/variables_ANTARES_STD_Smeared_${SMEARING_LEVEL}_${ASSYMETRIC_FACTOR_DIR}_${ASSYMETRIC_FACTOR_ENERGY}.json"
     fi
 else
     # Define user json file

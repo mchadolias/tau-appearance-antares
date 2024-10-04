@@ -8,9 +8,10 @@
 ###      <ORDERING>     : "NO" or "IO"
 ###      <RECONSTRUCTION>: "MC" or "NNFit_full" or "NNFit_dir" or "AAFit_ann" or "AAFit_dedx" or "Smeared"
 ###      <CUT_OPTION>   : example: "muon_free"
-###      <SMEARING_LEVEL>: example: "10" or "50" or "100" or "200" or "500" or "km3net"
-###
-### example: ./submit.sh 0 0 STD NO MC
+###      <SMEARING_LEVEL>: example: "10" or "50" or "100" or "200" or "500" or "orca6" or "orca115"
+###      <ASSYMETRIC_FACTOR_DIR>: example: "1.0"
+###     <ASSYMETRIC_FACTOR_ENERGY>: example: "3.0"
+### example: ./submit.sh 0 0 STD NO MC muon_free 10 1.0 3.0
 #
 ### set this to 1 for a DRY RUN, i.e. without submission to SLURM
 DRY_RUN=$1
@@ -19,7 +20,9 @@ CHANNEL=$3 # "STD" or "TAU"
 ORDERING=$4 # "NO" or "IO"
 RECONSTRUCTION=$5 # "MC" or "NNFit_full" or "NNFit_dir" or "AAFit_ann" or "AAFit_dedx" or "Smeared"
 CUT_OPTION=$6 # example: "muon_free"
-SMEARING_LEVEL=$7 # example: "10" or "50" or "100" or "200" or "500" or "km3net"
+SMEARING_LEVEL=$7 # example: "10" or "50" or "100" or "200" or "500" or "orca6" or "orca115"
+ASSYMETRIC_FACTOR_DIR=$8
+ASSYMETRIC_FACTOR_ENERGY=$9
 
 if [ -z "$CHANNEL" ] || [ -z "$ORDERING" ] || [ -z "$RECONSTRUCTION" ] || [ -z "$CUT_OPTION" ] || [ -z "$SMEARING_LEVEL" ]; then
     echo "Please provide all the necessary arguments"
@@ -35,6 +38,8 @@ echo "ORDERING: $ORDERING"
 echo "RECONSTRUCTION: $RECONSTRUCTION"
 echo "CUT_OPTION: $CUT_OPTION"
 echo "SMEARING_LEVEL: $SMEARING_LEVEL"
+echo "ASSYMETRIC_FACTOR_DIR: $ASSYMETRIC_FACTOR_DIR"
+echo "ASSYMETRIC_FACTOR_ENERGY: $ASSYMETRIC_FACTOR_ENERGY"
 echo -e "--------------------\n"
 
 
@@ -69,6 +74,8 @@ echo "sbatch \
 --CUT=${CUT_OPTION},\
 --DRY_RUN=${DRY_RUN},\
 --RECONSTRUCTION=${RECONSTRUCTION},\
+--ASSYMETRIC_FACTOR_DIR=${ASSYMETRIC_FACTOR_DIR},\
+--ASSYMETRIC_FACTOR_ENERGY=${ASSYMETRIC_FACTOR_ENERGY},\
 --SMEARING_LEVEL=${SMEARING_LEVEL} \
          ${WORKER_SCRIPT}"
 
@@ -84,6 +91,8 @@ ORDERING=${ORDERING},\
 CUT=${CUT_OPTION},\
 DRY_RUN=${DRY_RUN},\
 RECONSTRUCTION=${RECONSTRUCTION},\
+ASSYMETRIC_FACTOR_DIR=${ASSYMETRIC_FACTOR_DIR},\
+ASSYMETRIC_FACTOR_ENERGY=${ASSYMETRIC_FACTOR_ENERGY},\
 SMEARING_LEVEL=${SMEARING_LEVEL} \
          ${WORKER_SCRIPT}
 
@@ -96,6 +105,8 @@ elif [[ "$DRY_RUN" -eq 1 ]]; then
            SYSTEMATICS=${SYSTEMATICS_FLAG} \
            CUT=${CUT_OPTION} \
            SMEARING_LEVEL=${SMEARING_LEVEL} \
+           ASSYMETRIC_FACTOR_DIR=${ASSYMETRIC_FACTOR_DIR} \
+           ASSYMETRIC_FACTOR_ENERGY=${ASSYMETRIC_FACTOR_ENERGY} \
            DRY_RUN=${DRY_RUN}
     ${WORKER_SCRIPT}
 else
@@ -106,5 +117,7 @@ else
             SYSTEMATICS:${SYSTEMATICS_FLAG} \n \
             CUT:${CUT_OPTION} \n \
             RECONSTRUCTION:${RECONSTRUCTION} \n \
+            ASSYMETRIC_FACTOR_DIR:${ASSYMETRIC_FACTOR_DIR} \n \
+            ASSYMETRIC_FACTOR_ENERGY:${ASSYMETRIC_FACTOR_ENERGY} \n \
             SMEARING_LEVEL:${SMEARING_LEVEL} \n "
 fi

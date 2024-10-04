@@ -15,6 +15,12 @@ ORDERING=("NO" "IO")
 RECONSTRUCTION=("MC" "NNFit_full" "NNFit_dir" "AAFit_ann" "AAFit_dedx")
 SYSTEMATICS=(0)
 COUNTER=1
+CUT=$1
+
+if [ -z "$CUT" ]; then
+    echo "Please provide the CUT option"
+    exit
+fi
 
 echo -e "\n--------------------"
 echo "Starting script:" $(basename $BASH_SOURCE)
@@ -24,9 +30,8 @@ for SYS in "${SYSTEMATICS[@]}"; do
         for ORD in "${ORDERING[@]}"; do
             for REC in "${RECONSTRUCTION[@]}"; do
                     echo -e "Submitting job number ${COUNTER} for $CHAN $ORD $REC"
-                    ./submit.sh 0 ${SYS} $CHAN $ORD $REC "muon_free" 0
+                    ./submit.sh 0 ${SYS} $CHAN $ORD $REC $CUT 0 0 0
                     COUNTER=$((COUNTER+1))
-                fi
             done
         done
     done
