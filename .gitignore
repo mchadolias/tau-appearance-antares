@@ -1,7 +1,7 @@
-CutSelection
 *.root
 
 // General directories
 logs
 bin
 plots
+__pycache__

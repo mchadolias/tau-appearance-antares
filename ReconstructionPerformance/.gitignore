@@ -1,8 +1,5 @@
 notebooks
-__pycache__
-plots
 data
-logs
 summary_files
 *.root
 *.txt
