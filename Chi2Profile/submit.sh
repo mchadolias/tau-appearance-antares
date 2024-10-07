@@ -11,7 +11,8 @@
 ###      <SMEARING_LEVEL>: example: "10" or "50" or "100" or "200" or "500" or "orca6" or "orca115"
 ###      <ASSYMETRIC_FACTOR_DIR>: example: "1.0"
 ###     <ASSYMETRIC_FACTOR_ENERGY>: example: "3.0"
-### example: ./submit.sh 0 0 STD NO MC muon_free 10 1.0 3.0
+###     <SCENARIO>: example: "ideal" or "realistic"
+### example: ./submit.sh 0 0 STD NO MC muon_free 10 1.0 3.0 ideal
 #
 ### set this to 1 for a DRY RUN, i.e. without submission to SLURM
 DRY_RUN=$1
@@ -23,6 +24,7 @@ CUT_OPTION=$6 # example: "muon_free"
 SMEARING_LEVEL=$7 # example: "10" or "50" or "100" or "200" or "500" or "orca6" or "orca115"
 ASSYMETRIC_FACTOR_DIR=$8
 ASSYMETRIC_FACTOR_ENERGY=$9
+SCENARIO=${10}
 
 if [ -z "$CHANNEL" ] || [ -z "$ORDERING" ] || [ -z "$RECONSTRUCTION" ] || [ -z "$CUT_OPTION" ] || [ -z "$SMEARING_LEVEL" ]; then
     echo "Please provide all the necessary arguments"
@@ -40,6 +42,7 @@ echo "CUT_OPTION: $CUT_OPTION"
 echo "SMEARING_LEVEL: $SMEARING_LEVEL"
 echo "ASSYMETRIC_FACTOR_DIR: $ASSYMETRIC_FACTOR_DIR"
 echo "ASSYMETRIC_FACTOR_ENERGY: $ASSYMETRIC_FACTOR_ENERGY"
+echo "SCENARIO: $SCENARIO"
 echo -e "--------------------\n"
 
 
@@ -76,6 +79,7 @@ echo "sbatch \
 --RECONSTRUCTION=${RECONSTRUCTION},\
 --ASSYMETRIC_FACTOR_DIR=${ASSYMETRIC_FACTOR_DIR},\
 --ASSYMETRIC_FACTOR_ENERGY=${ASSYMETRIC_FACTOR_ENERGY},\
+--SCENARIO=${SCENARIO},\
 --SMEARING_LEVEL=${SMEARING_LEVEL} \
          ${WORKER_SCRIPT}"
 
@@ -93,6 +97,7 @@ DRY_RUN=${DRY_RUN},\
 RECONSTRUCTION=${RECONSTRUCTION},\
 ASSYMETRIC_FACTOR_DIR=${ASSYMETRIC_FACTOR_DIR},\
 ASSYMETRIC_FACTOR_ENERGY=${ASSYMETRIC_FACTOR_ENERGY},\
+SCENARIO=${SCENARIO},\
 SMEARING_LEVEL=${SMEARING_LEVEL} \
          ${WORKER_SCRIPT}
 
@@ -107,6 +112,7 @@ elif [[ "$DRY_RUN" -eq 1 ]]; then
            SMEARING_LEVEL=${SMEARING_LEVEL} \
            ASSYMETRIC_FACTOR_DIR=${ASSYMETRIC_FACTOR_DIR} \
            ASSYMETRIC_FACTOR_ENERGY=${ASSYMETRIC_FACTOR_ENERGY} \
+           SCENARIO=${SCENARIO} \           
            DRY_RUN=${DRY_RUN}
     ${WORKER_SCRIPT}
 else
@@ -119,5 +125,6 @@ else
             RECONSTRUCTION:${RECONSTRUCTION} \n \
             ASSYMETRIC_FACTOR_DIR:${ASSYMETRIC_FACTOR_DIR} \n \
             ASSYMETRIC_FACTOR_ENERGY:${ASSYMETRIC_FACTOR_ENERGY} \n \
+            SCENARIO:${SCENARIO} \n \
             SMEARING_LEVEL:${SMEARING_LEVEL} \n "
 fi

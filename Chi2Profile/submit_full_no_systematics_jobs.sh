@@ -13,7 +13,7 @@
 CHANNEL=("STD" "TAU")
 ORDERING=("NO" "IO")
 RECONSTRUCTION=("MC" "NNFit_full" "NNFit_dir" "AAFit_ann" "AAFit_dedx")
-SYSTEMATICS=(0)
+SYSTEMATICS=(0 1)
 COUNTER=1
 CUT=$1
 
@@ -30,7 +30,7 @@ for SYS in "${SYSTEMATICS[@]}"; do
         for ORD in "${ORDERING[@]}"; do
             for REC in "${RECONSTRUCTION[@]}"; do
                     echo -e "Submitting job number ${COUNTER} for $CHAN $ORD $REC"
-                    ./submit.sh 0 ${SYS} $CHAN $ORD $REC $CUT 0 0 0
+                    ./submit.sh 0 ${SYS} $CHAN $ORD $REC $CUT 0 0 0 "ideal"
                     COUNTER=$((COUNTER+1))
             done
         done

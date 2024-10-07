@@ -20,6 +20,7 @@ echo "CUT: $CUT"
 echo "SMEARING_LEVEL: $SMEARING_LEVEL"
 echo "ASSYMETRIC_FACTOR_DIR: $ASSYMETRIC_FACTOR_DIR"
 echo "ASSYMETRIC_FACTOR_ENERGY: $ASSYMETRIC_FACTOR_ENERGY"
+echo "SCENARIO: $SCENARIO"
 echo -e "============================== \n"
 
 # Go to the directory of the script
@@ -43,7 +44,8 @@ python3 create_json_file.py  \
         --systematics $SYSTEMATICS \
         --smear_level $SMEARING_LEVEL \
         --assym_energy $ASSYMETRIC_FACTOR_DIR \
-        --assym_direction $ASSYMETRIC_FACTOR_ENERGY
+        --assym_direction $ASSYMETRIC_FACTOR_ENERGY \
+        --scenario $SCENARIO
 
 echo -e "\nCreating directories..."
 echo "=============================="
@@ -81,10 +83,17 @@ if [ $RECONSTRUCTION == "Smeared" ]; then
     else
         echo "ROOT file does not exist, running Smearing code"
         echo "SMEARING_LEVEL: $SMEARING_LEVEL"
+        
+        if [ $SCENARIO == "ideal" ]; then
+            INPUT_FILE="$ROOT_PATH/ANTARES/antares_w_nnfit_FINAL1.root"
+        elif [ $SCENARIO == "realistic" ]; then
+            INPUT_FILE="$ROOT_PATH/ANTARES_realistic/Antares_mc_hard_cuts.root"
+        else
+            echo "SCENARIO type not recognized"
+            exit
+        fi
 
-        INPUT_FILE="$ROOT_PATH/ANTARES/antares_w_nnfit_FINAL1.root"
-
-        if [[ $SMEARING_LEVEL == "antares" && $ASSYMETRIC_FACTOR_DIR != "1.0" ]]; then
+        if [[ $SMEARING_LEVEL == "antares"] && [$ASSYMETRIC_FACTOR_DIR != "1.0" ]]; then
             OUTPUT_FILE="$ROOT_PATH/ANTARES_Smeared_${SMEARING_LEVEL}_${ASSYMETRIC_FACTOR_DIR}_${ASSYMETRIC_FACTOR_ENERGY}/antares_smeared_${SMEARING_LEVEL}_${ASSYMETRIC_FACTOR_DIR}_${ASSYMETRIC_FACTOR_ENERGY}.root"
         else
             OUTPUT_FILE="$ROOT_PATH/ANTARES_Smeared_${SMEARING_LEVEL}/antares_smeared_${SMEARING_LEVEL}.root"
@@ -108,14 +117,28 @@ if [ $RECONSTRUCTION == "Smeared" ]; then
 
         echo "ROOT file: antares_smeared_${SMEARING_LEVEL}.root created"
         echo "Add CAN to the root file"
-        ./Smearing/bin/addCanANTARES $OUTPUT_FILE
+        ./CanDimension/bin/addCanANTARES $OUTPUT_FILE
     fi
 else 
-    # Check if the ROOT file exists
-    if [ -f "$ROOT_PATH/ANTARES/antares_w_nnfit_FINAL1.root" ]; then
-        echo "ROOT file: antares_w_nnfit_FINAL1.root already exists"
-    else 
-        echo "ROOT file does not exist, exiting"
+   
+   if [ $SCENARIO == "ideal" ]; then
+        # Check if the ROOT file exists
+        if [ -f "$ROOT_PATH/ANTARES/antares_w_nnfit_FINAL1.root" ]; then
+            echo "ROOT file: antares_w_nnfit_FINAL1.root already exists"
+        else 
+            echo "ROOT file does not exist, exiting"
+            exit
+        fi
+    elif [ $SCENARIO == "realistic" ]; then
+        # Check if the ROOT file exists
+        if [ -f "$ROOT_PATH/ANTARES_realistic/Antares_mc_hard_cuts.root" ]; then
+            echo "ROOT file: Antares_mc_hard_cuts.root already exists"
+        else 
+            echo "ROOT file does not exist, exiting"
+            exit
+        fi
+    else
+        echo "SCENARIO type not recognized"
         exit
     fi
 fi 
@@ -148,7 +171,7 @@ if [ $RECONSTRUCTION == "Smeared" ]; then
         exit
     fi
 
-    if [ $SMEARING_LEVEL == "antares" && $ASSYMETRIC_FACTOR_DIR != "1.0" ]; then
+    if [ $SMEARING_LEVEL == "antares"] && [$ASSYMETRIC_FACTOR_DIR != "1.0" ]; then
         ## Add the assymetric factor to the variable name in the json file
         VARIABLES="./json/ANTARES/variables_ANTARES_STD_Smeared_${SMEARING_LEVEL}_${ASSYMETRIC_FACTOR_DIR}_${ASSYMETRIC_FACTOR_ENERGY}.json"
     fi
@@ -157,9 +180,9 @@ else
     USER="./json/USER/User_${RECONSTRUCTION}_${CHANNEL}_${ORDERING}_${CUT}_${SYSTEMATICS}_free.json"
 
     if [ $CHANNEL == "STD" ]; then
-        VARIABLES="./json/ANTARES/variables_ANTARES_STD.json"
+        VARIABLES="./json/ANTARES/variables_ANTARES_STD_${SCENARIO}.json"
     elif [ $CHANNEL == "TAU" ]; then
-        VARIABLES="./json/ANTARES/variables_ANTARES_TAU.json"
+        VARIABLES="./json/ANTARES/variables_ANTARES_TAU_${SCENARIO}.json"
     else
         echo "CHANNEL type not recognized"
         exit

@@ -2,20 +2,17 @@
 
 # Run multiple job scripts in parallel
 
-# Usage: ./submit-all.sh 
+# Usage: ./submit_smear_jobs.sh <CUT>
 
-# <DRY_RUN_FLAG> : 0 for submission to SLURM, 1 for frontend execution
-# <SYSTEMATICS_FLAG> : 0 for no systematics, 1 for systematics
-# <CHANNEL>   : "STD" or "TAU"
-# <ORDERING>     : "NO" or "IO"
-# <RECONSTRUCTION>: "MC" or "NNFit" or "AAFit"
+# Set the parameters
+# CUT=$1 # The cut option is passed as an argument
 
 CHANNEL=("STD")
 ORDERING=("NO")
 RECONSTRUCTION="Smeared"
-SMEARING_LEVEL=("10" "50" "70" "100" "200" "500" "antares" "orca6" "orca115")
+SMEARING_LEVEL=("10" "30" "50" "70" "90" "100" "antares" "orca6" "orca115")
 CUT=$1
-SYSTEMATICS=("0")
+SYSTEMATICS=("1" "0")
 COUNTER=1
 ASSYMETRIC_FACTOR_DIR="1.0"
 
@@ -40,7 +37,7 @@ for SYS in "${SYSTEMATICS[@]}"; do
                 fi
 
                 echo -e "Submitting job number ${COUNTER} for $CHAN $ORD $RECONSTRUCTION $SMEAR"
-                ./submit.sh 0 ${SYS} $CHAN $ORD $RECONSTRUCTION $CUT $SMEAR $ASSYMETRIC_FACTOR_DIR $ASSYMETRIC_FACTOR_ENERGY
+                ./submit.sh 0 ${SYS} $CHAN $ORD $RECONSTRUCTION $CUT $SMEAR $ASSYMETRIC_FACTOR_DIR $ASSYMETRIC_FACTOR_ENERGY "ideal"
                 COUNTER=$((COUNTER+1))
             done
         done

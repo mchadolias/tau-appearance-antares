@@ -24,7 +24,7 @@ for SYS in "${SYSTEMATICS[@]}"; do
         for ORD in "${ORDERING[@]}"; do
             for REC in "${RECONSTRUCTION[@]}"; do
                 echo -e "Submitting job number ${COUNTER} for $CHAN $ORD $REC"
-                ./submit.sh 0 ${SYS} $CHAN $ORD $REC "muon_free" 0 0 0
+                ./submit.sh 0 ${SYS} $CHAN $ORD $REC "is_nnfit" 0 0 0 "ideal"
                 COUNTER=$((COUNTER+1))
             done
         done
