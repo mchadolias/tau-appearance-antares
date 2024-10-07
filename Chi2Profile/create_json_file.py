@@ -3,6 +3,7 @@ import os
 from itertools import product
 import numpy as np
 import argparse
+from json_templates import json_variables_template, create_param_template
 
 text_conversion = {
     "STD": "Std",
@@ -36,6 +37,8 @@ def ArgumentParser():
                         help="Choose the asymmetry energy to be applied")
     parser.add_argument("--assym_direction", type=str, default="1.0",
                         help="Choose the asymmetry direction to be applied")
+    parser.add_argument("--scenario", type=str, default="ideal",
+                        help="Choose the scenario to be applied, either ideal or realistic")
     return parser.parse_args()
     
 def create_json_User(
@@ -98,125 +101,58 @@ def create_json_User(
               with open(os.path.join(json_path, f'USER/User_{reco}_{channel}_{order}_{cut}_{systematics}_{ff}.json'), 'w') as f:
                   json.dump(json_file, f, indent=4)
                   print(f"Created file: User_{reco}_{channel}_{order}_{cut}_{systematics}_{ff}.json")
-        
+
 def create_json_variables(
     channel: str,
     json_path: str,
     smear_level: str,
     asymetric_factor_direction: str = "1.0",
     asymetric_factor_energy: str = "1.0",
-):    
-        if (smear_level == "0"):
-          json_file = {
-              "variables": {
-                  "MClabel": "ANTARES",
-                  "SelectedEvents_filename": [
-                      "antares_w_nnfit_FINAL1.root"
-                  ],
-                  "exposure_nyears": 12.433,
-                  "output_path": "output",
-                  "flux_path": "flux/Honda2014_frj-solmin-aa_ORCA6_hist.root",
-                  "by_path": "xsection/dummy_by_ORCA6.root",
-                  "crossfile_InteractingEvents_path": "xsection/xsection_gsg_v5r1_SWIM.root",
-                  "crossfile_RespMatrix_path": "xsection/xsection_gsg_v5r1_SWIM.root",
-                  "PREMTable": "prem_default.txt",
-                  "ExtensiveOutput": True,
-                  "EnableMCError": True,
-                  "UseW2Method": True,
-                  "PlotEffMass": False,
-                  "Verbose": False,
-                  "SetMuons": False,
-                  "EnableSmearMachine": False,
-                  "Analysis_Type": "Asimov",
-                  "Experiment_Type": text_conversion[channel],
-                  "PseudoExperiment_seed": 11,
-                  "SetBootstrap": False,
-                  "Bootstrap_seed": 1,
-                  "Bootstrap_Fraction": 1
-              }
-          }
+    scenario: str = "ideal",
+):   
+    # Define json file
+    json_file = json_variables_template(channel)
 
-          # Check if file already exists
-          if os.path.exists(os.path.join(json_path, f'ANTARES/variables_ANTARES_{channel}.json')):
-              print(f"File already exists: variables_ANTARES_{channel}.json")
-          else:
-              with open(os.path.join(json_path, f'ANTARES/variables_ANTARES_{channel}.json'), 'w') as f:
-                  json.dump(json_file, f, indent=4)
-                  print(f"Created file: variables_ANTARES_{channel}.json")
-        elif((smear_level == "antares") & (asymetric_factor_direction != "1.0")):
-            json_file = {
-              "variables": {
-                  "MClabel": f"ANTARES_Smeared_{smear_level}_{asymetric_factor_direction}_{asymetric_factor_energy}",
-                  "SelectedEvents_filename": [
-                      f"antares_smeared_{smear_level}_{asymetric_factor_direction}_{asymetric_factor_energy}.root"
-                  ],
-                  "exposure_nyears": 12.433,
-                  "output_path": "output",
-                  "flux_path": "flux/Honda2014_frj-solmin-aa_ORCA6_hist.root",
-                  "by_path": "xsection/dummy_by_ORCA6.root",
-                  "crossfile_InteractingEvents_path": "xsection/xsection_gsg_v5r1_SWIM.root",
-                  "crossfile_RespMatrix_path": "xsection/xsection_gsg_v5r1_SWIM.root",
-                  "PREMTable": "prem_default.txt",
-                  "ExtensiveOutput": True,
-                  "EnableMCError": True,
-                  "UseW2Method": True,
-                  "PlotEffMass": False,
-                  "Verbose": False,
-                  "SetMuons": False,
-                  "EnableSmearMachine": False,
-                  "Analysis_Type": "Asimov",
-                  "Experiment_Type": text_conversion[channel],
-                  "PseudoExperiment_seed": 11,
-                  "SetBootstrap": False,
-                  "Bootstrap_seed": 1,
-                  "Bootstrap_Fraction": 1
-              }
-            }
-          
-            # Check if file already exists
-            if os.path.exists(os.path.join(json_path, f'ANTARES/variables_ANTARES_{channel}_Smeared_{smear_level}_{asymetric_factor_direction}_{asymetric_factor_energy}.json')):
-                print(f"File already exists: variables_ANTARES_{channel}_Smeared_{smear_level}_{asymetric_factor_direction}_{asymetric_factor_energy}.json")
-            else:
-                with open(os.path.join(json_path, f'ANTARES/variables_ANTARES_{channel}_Smeared_{smear_level}_{asymetric_factor_direction}_{asymetric_factor_energy}.json'), 'w') as f:
-                    json.dump(json_file, f, indent=4)
-                    print(f"Created file: variables_ANTARES_{channel}_Smeared_{smear_level}_{asymetric_factor_direction}_{asymetric_factor_energy}.json")
-        else:
-            json_file = {
-              "variables": {
-                  "MClabel": f"ANTARES_Smeared_{smear_level}",
-                  "SelectedEvents_filename": [
-                      f"antares_smeared_{smear_level}.root"
-                  ],
-                  "exposure_nyears": 12.433,
-                  "output_path": "output",
-                  "flux_path": "flux/Honda2014_frj-solmin-aa_ORCA6_hist.root",
-                  "by_path": "xsection/dummy_by_ORCA6.root",
-                  "crossfile_InteractingEvents_path": "xsection/xsection_gsg_v5r1_SWIM.root",
-                  "crossfile_RespMatrix_path": "xsection/xsection_gsg_v5r1_SWIM.root",
-                  "PREMTable": "prem_default.txt",
-                  "ExtensiveOutput": True,
-                  "EnableMCError": True,
-                  "UseW2Method": True,
-                  "PlotEffMass": False,
-                  "Verbose": False,
-                  "SetMuons": False,
-                  "EnableSmearMachine": False,
-                  "Analysis_Type": "Asimov",
-                  "Experiment_Type": text_conversion[channel],
-                  "PseudoExperiment_seed": 11,
-                  "SetBootstrap": False,
-                  "Bootstrap_seed": 1,
-                  "Bootstrap_Fraction": 1
-              }
-            }
-
-            # Check if file already exists
-            if os.path.exists(os.path.join(json_path, f'ANTARES/variables_ANTARES_{channel}_Smeared_{smear_level}.json')):
-                print(f"File already exists: variables_ANTARES_{channel}_Smeared_{smear_level}.json")
-            else:
-                with open(os.path.join(json_path, f'ANTARES/variables_ANTARES_{channel}_Smeared_{smear_level}.json'), 'w') as f:
-                    json.dump(json_file, f, indent=4)
-                    print(f"Created file: variables_ANTARES_{channel}_Smeared_{smear_level}.json")
+    if scenario == "realistic":
+        json_file["variables"]["MClabel"] = f"ANTARES_{scenario}"
+        json_file["variables"]["SelectedEvents_filename"] = ["Antares_mc_hard_cuts.root"]
+        json_file["variables"]["SetMuons"] = True
+        json_file["variables"]["PlotEffMass"] = True
+    
+    if (smear_level == "0"):       
+      # Check if file already exists
+      if os.path.exists(os.path.join(json_path, f'ANTARES/variables_ANTARES_{channel}_{scenario}.json')):
+          print(f"File already exists: variables_ANTARES_{channel}_{scenario}.json")
+      else:
+          with open(os.path.join(json_path, f'ANTARES/variables_ANTARES_{channel}_{scenario}.json'), 'w') as f:
+              json.dump(json_file, f, indent=4)
+              print(f"Created file: variables_ANTARES_{channel}_{scenario}.json")
+    
+    elif((smear_level == "antares") & (asymetric_factor_direction != "1.0")):
+        
+      json_file["variables"]["MClabel"] = f"ANTARES_Smeared_{smear_level}_{asymetric_factor_direction}_{asymetric_factor_energy}"
+      json_file["variables"]["SelectedEvents_filename"] = [f"antares_smeared_{smear_level}_{asymetric_factor_direction}_{asymetric_factor_energy}.root"]
+      
+      # Check if file already exists
+      if os.path.exists(os.path.join(json_path, f'ANTARES/variables_ANTARES_{channel}_Smeared_{smear_level}_{asymetric_factor_direction}_{asymetric_factor_energy}.json')):
+          print(f"File already exists: variables_ANTARES_{channel}_Smeared_{smear_level}_{asymetric_factor_direction}_{asymetric_factor_energy}.json")
+      else:
+          with open(os.path.join(json_path, f'ANTARES/variables_ANTARES_{channel}_Smeared_{smear_level}_{asymetric_factor_direction}_{asymetric_factor_energy}.json'), 'w') as f:
+              json.dump(json_file, f, indent=4)
+      
+              print(f"Created file: variables_ANTARES_{channel}_Smeared_{smear_level}_{asymetric_factor_direction}_{asymetric_factor_energy}.json")
+    else:
+        
+      json_file["variables"]["MClabel"] = f"ANTARES_Smeared_{smear_level}"
+      json_file["variables"]["SelectedEvents_filename"] = [f"antares_smeared_{smear_level}.root"]
+      
+      # Check if file already exists
+      if os.path.exists(os.path.join(json_path, f'ANTARES/variables_ANTARES_{channel}_Smeared_{smear_level}.json')):
+          print(f"File already exists: variables_ANTARES_{channel}_Smeared_{smear_level}.json")
+      else:
+          with open(os.path.join(json_path, f'ANTARES/variables_ANTARES_{channel}_Smeared_{smear_level}.json'), 'w') as f:
+              json.dump(json_file, f, indent=4)
+              print(f"Created file: variables_ANTARES_{channel}_Smeared_{smear_level}.json")
 
 
 def create_json_classes(
@@ -226,20 +162,21 @@ def create_json_classes(
     smear_level: str,
 ):    
     if (cut == "muon_free"):
-        selection = "cos_zenith_recoTrue < 0"
+        selection = ["(cos_zenith_recoTrue < 0)","(cos_zenith_recoTrue < 0)"]
     elif (cut == "is_nnfit"):
-        selection = "NNFitShower_cos_zenith < 0"
-    elif (cut == "is_aafit"):
-        selection = "(aafit_flag == 1) && (cos_zenith_recoTrue < 0)"
+        selection =["(NNFitTrack_cos_zenith < 0)","(NNFitShower_cos_zenith < 0)"]
     elif (cut == "hard_cut"):
-        selection = "(cos_zenith_recoTrue < -0.4) && (bbfit_flag == 1)"
+        selection = ["((NNFitTrack_cos_zenith < -0.4) && (NNFitTrack_SigmaZClosest < 10) && (NNFitTrack_SigmaRClosest < 5))",
+                     "((NNFitShower_cos_zenith < -0.4) && (NNFitShower_SigmaZVertex < 15 && NNFitShower_SigmaRVertex < 15))"]
+    elif (cut == "realistic"):
+        selection = ["(NNFitTrack_cos_zenith < -0.4)","(NNFitShower_cos_zenith < -0.4)"]
 
     json_file = {
     "classes": [
     {
       "name": "tracks",
-      "general_cut": f"((abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && ({selection})",
-      "muon_loose_cut": f"((abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && ({selection})",
+      "general_cut": f"((abs(type) == 14) || (abs(type) == 16 && interaction_type == 2))  && {selection[0]}",
+      "muon_loose_cut": f"((abs(type) == 14) || (abs(type) == 16 && interaction_type == 2))  && {selection[0]}",
       "reconstructions": { 
           "E": f"{reco_info[reco]['energy']}",
           "cosT": f"{reco_info[reco]['zenith']}",
@@ -249,8 +186,8 @@ def create_json_classes(
     },
     {    
       "name": "showers",
-      "general_cut": f"(!(abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && ({selection})",
-      "muon_loose_cut": f"(!(abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && ({selection})",
+      "general_cut": f"(!(abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && {selection[1]}",
+      "muon_loose_cut": f"((abs(type) == 14) || (abs(type) == 16 && interaction_type == 2)) && {selection[1]}",
       "reconstructions": {
           "E": f"{reco_info[reco]['energy']}",
           "cosT": f"{reco_info[reco]['zenith']}",
@@ -322,307 +259,12 @@ def create_json_params(
                 json.dump(json_file, f, indent=4)
                 print(f"Created file: parameters_Data_NO_Model_{order}_{systematics}_{ff}.json")
 
-def create_param_template(
-    json_path: str,
-    order: str,
-):
-    if order == "NO":
-        json_file = {
-                    "parameters": {
-                      "Dm21": {
-                        "vData": 7.42e-05,
-                        "vModel": 7.42e-05,
-                        "fixed": True,
-                        "prior": False,
-                        "prior_mean": 7.42e-05,
-                        "prior_sigma": 2.1e-06
-                      },
-                      "Dm31": {
-                        "vData": 2.517e-03,
-                        "vModel": 2.517e-03,
-                        "fixed": True,
-                        "prior": False,
-                        "prior_mean": 2.517e-03,
-                        "prior_sigma": 2.1e-05
-                      },
-                      "DeltaCP": {
-                        "vData": 197.0,
-                        "vModel": 197.0,
-                        "fixed": True,
-                        "prior": False,
-                        "prior_mean": 197.0,
-                        "prior_sigma": 27.0
-                      },
-                      "Theta13": {
-                        "vData": 8.57,
-                        "vModel": 8.57,
-                        "fixed": True,
-                        "prior": True,
-                        "prior_mean": 8.57,
-                        "prior_sigma": 0.12
-                      },
-                      "Theta12": {
-                        "vData": 33.44,
-                        "vModel": 33.44,
-                        "fixed": True,
-                        "prior": False,
-                        "prior_mean": 33.44,
-                        "prior_sigma": 0.77
-                      },
-                      "Theta23": {
-                        "vData": 49.2,
-                        "vModel": 49.2,
-                        "fixed": True,
-                        "prior": False,
-                        "prior_mean": 49.2,
-                        "prior_sigma": 2.0
-                      },
-                      "EnergyScale": {
-                        "vData": 1.0,
-                        "vModel": 1.0,
-                        "fixed": True,
-                        "prior": True,
-                        "prior_mean": 1.0,
-                        "prior_sigma": 0.05
-                      },
-                      "ZenithSlope": {
-                        "vData": 0.0,
-                        "vModel": 0.0,
-                        "fixed": True,
-                        "prior": True,
-                        "prior_mean": 0.0,
-                        "prior_sigma": 0.07
-                      },
-                      "EnergySlope": {
-                        "vData": 0.0,
-                        "vModel": 0.0,
-                        "fixed": True,
-                        "prior": True,
-                        "prior_mean": 0.0,
-                        "prior_sigma": 0.3
-                      },
-                      "NumuNumubarSkew": {
-                        "vData": 0.0,
-                        "vModel": 0.0,
-                        "fixed": True,
-                        "prior": True,
-                        "prior_mean": 0.0,
-                        "prior_sigma": 0.1
-                      },
-                      "NueNuebarSkew": {
-                        "vData": 0.0,
-                        "vModel": 0.0,
-                        "fixed": True,
-                        "prior": True,
-                        "prior_mean": 0.0,
-                        "prior_sigma": 0.1
-                      },
-                      "NumuNueSkew": {
-                        "vData": 0.0,
-                        "vModel": 0.0,
-                        "fixed": True,
-                        "prior": True,
-                        "prior_mean": 0.0,
-                        "prior_sigma": 0.03
-                      },
-                      "NCscale": {
-                        "vData": 1.0,
-                        "vModel": 1.0,
-                        "fixed": True,
-                        "prior": True,
-                        "prior_mean": 1.0,
-                        "prior_sigma": 0.1
-                      },
-                      "TauNorm": {
-                        "vData": 1.0,
-                        "vModel": 1.0,
-                        "fixed": True,
-                        "prior": True,
-                        "prior_mean": 1.0,
-                        "prior_sigma": 0.2
-                      },
-                      "MuonNorm": {
-                        "vData": 1.0,
-                        "vModel": 1.0,
-                        "fixed": True,
-                        "prior": False,
-                        "prior_mean": 1.0,
-                        "prior_sigma": 0.05
-                      },
-                      "TrackNorm": {
-                        "vData": 1.0,
-                        "vModel": 1.0,
-                        "fixed": True,
-                        "prior": False,
-                        "prior_mean": 1.0,
-                        "prior_sigma": 0.1
-                      },
-                      "ShowerNorm": {
-                        "vData": 1.0,
-                        "vModel": 1.0,
-                        "fixed": True,
-                        "prior": False,
-                        "prior_mean": 1.0,
-                        "prior_sigma": 0.1
-                      }
-                    }
-                  }
-    elif order == "IO":
-         json_file = {
-                    "parameters": {
-                        "Dm21": {
-                          "vData": 7.42e-05,
-                          "vModel": 7.42e-05,
-                          "fixed": True,
-                          "prior": False,
-                          "prior_mean": 7.42e-05,
-                          "prior_sigma": 2.1e-06
-                        },
-                        "Dm31": {
-                          "vData": 2.517e-03,
-                          "vModel": -2.4238e-03,
-                          "fixed": True,
-                          "prior": False,
-                          "prior_mean": -2.4238e-03,
-                          "prior_sigma": 2.1e-05
-                        },
-                        "DeltaCP": {
-                          "vData": 197.0,
-                          "vModel": 282.0,
-                          "fixed": True,
-                          "prior": False,
-                          "prior_mean": 282.0,
-                          "prior_sigma": 27.0
-                        },
-                        "Theta13": {
-                          "vData": 8.57,
-                          "vModel": 8.60,
-                          "fixed": True,
-                          "prior": True,
-                          "prior_mean": 8.60,
-                          "prior_sigma": 0.12
-                        },
-                        "Theta12": {
-                          "vData": 33.44,
-                          "vModel": 33.45,
-                          "fixed": True,
-                          "prior": False,
-                          "prior_mean": 33.45,
-                          "prior_sigma": 0.77
-                        },
-                        "Theta23": {
-                          "vData": 49.2,
-                          "vModel": 49.3,
-                          "fixed": False,
-                          "prior": False,
-                          "prior_mean": 49.3,
-                          "prior_sigma": 2.0
-                        },
-                        "EnergyScale": {
-                          "vData": 1.0,
-                          "vModel": 1.0,
-                          "fixed": True,
-                          "prior": True,
-                          "prior_mean": 1.0,
-                          "prior_sigma": 0.05
-                        },
-                        "ZenithSlope": {
-                          "vData": 0.0,
-                          "vModel": 0.0,
-                          "fixed": True,
-                          "prior": True,
-                          "prior_mean": 0.0,
-                          "prior_sigma": 0.07
-                        },
-                        "EnergySlope": {
-                          "vData": 0.0,
-                          "vModel": 0.0,
-                          "fixed": True,
-                          "prior": True,
-                          "prior_mean": 0.0,
-                          "prior_sigma": 0.3
-                        },
-                        "NumuNumubarSkew": {
-                          "vData": 0.0,
-                          "vModel": 0.0,
-                          "fixed": True,
-                          "prior": True,
-                          "prior_mean": 0.0,
-                          "prior_sigma": 0.1
-                        },
-                        "NueNuebarSkew": {
-                          "vData": 0.0,
-                          "vModel": 0.0,
-                          "fixed": True,
-                          "prior": True,
-                          "prior_mean": 0.0,
-                          "prior_sigma": 0.1
-                        },
-                        "NumuNueSkew": {
-                          "vData": 0.0,
-                          "vModel": 0.0,
-                          "fixed": True,
-                          "prior": True,
-                          "prior_mean": 0.0,
-                          "prior_sigma": 0.03
-                        },
-                        "NCscale": {
-                          "vData": 1.0,
-                          "vModel": 1.0,
-                          "fixed": True,
-                          "prior": True,
-                          "prior_mean": 1.0,
-                          "prior_sigma": 0.1
-                        },
-                        "TauNorm": {
-                          "vData": 1.0,
-                          "vModel": 1.0,
-                          "fixed": True,
-                          "prior": True,
-                          "prior_mean": 1.0,
-                          "prior_sigma": 0.2
-                        },
-                        "MuonNorm": {
-                          "vData": 1.0,
-                          "vModel": 1.0,
-                          "fixed": True,
-                          "prior": False,
-                          "prior_mean": 1.0,
-                          "prior_sigma": 0.05
-                        },
-                        "TrackNorm": {
-                          "vData": 1.0,
-                          "vModel": 1.0,
-                          "fixed": True,
-                          "prior": False,
-                          "prior_mean": 1.0,
-                          "prior_sigma": 0.1
-                        },
-                        "ShowerNorm": {
-                          "vData": 1.0,
-                          "vModel": 1.0,
-                          "fixed": True,
-                          "prior": False,
-                          "prior_mean": 1.0,
-                          "prior_sigma": 0.1
-                        }
-                      }
-                    }
-
-    # Check if file already exists
-    if os.path.exists(os.path.join(json_path, f'PARAMETERS/params_template_{order}.json')):
-        print(f"File already exists: params_template_{order}.json")
-    else:
-        with open(os.path.join(json_path, f'PARAMETERS/params_template_{order}.json'), 'w') as f:
-            json.dump(json_file, f, indent=4)
-            print(f"Created file: params_template_{order}.json")    
-
 def create_json_binning(
   json_path: str,
   nbins: int,
 ):
   energy_reco_bins = np.round(np.geomspace(10, 100, nbins), 4)
-  energy_reco_bins = np.append(energy_reco_bins, 1000)
+  energy_reco_bins = np.append(energy_reco_bins, 20000)
   json_file = {
       "binning": {
         "nEbinsTrue": 30,
@@ -665,13 +307,14 @@ def run_json_files(
     smear_level: str,
     assym_energy: str,
     assym_direction: str,
+    scenario: str,
 ):
     # Create the json files
     print("\nCreating JSON User files...")
     create_json_User(reco, order, channel, systematics, json_path, cut, npoints, smear_level)
 
     print("\nCreating JSON variables files...")
-    create_json_variables(channel, json_path, smear_level, assym_energy, assym_direction)
+    create_json_variables(channel, json_path, smear_level, assym_energy, assym_direction, scenario)
 
     print("\nCreating JSON classes files...")
     create_json_classes(json_path, reco, cut, smear_level)
@@ -694,6 +337,7 @@ def main():
     smear_level = arg.smear_level
     assym_energy = arg.assym_energy
     assym_direction = arg.assym_direction
+    scenario = arg.scenario
 
     print("Arguments provided:")
     for key, value in vars(arg).items():
@@ -725,7 +369,7 @@ def main():
     elif systematics == "systematics":
       npoints = 15
         
-    run_json_files(channel, reco, order, systematics, json_path, npoints, cut_option, smear_level, assym_energy, assym_direction)
+    run_json_files(channel, reco, order, systematics, json_path, npoints, cut_option, smear_level, assym_energy, assym_direction, scenario)
     
 if __name__ == '__main__':
     main()
