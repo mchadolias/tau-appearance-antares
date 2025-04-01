@@ -1,0 +1,6 @@
+notebooks
+data
+summary_files
+*.root
+*.txt
+
