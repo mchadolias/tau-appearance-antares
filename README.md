@@ -1,7 +1,7 @@
 # Tau Neutrino Appearance with ANTARES
 - - -
 
-This repo contains the work that is accomplished with SWIM for the statistical analysis. This is the second repository of my Master's thesis containing everything that was calculated with Swim. 
+This repo contains the work that is accomplished with SWIM for the statistical analysis. This is the second repository of my Master's thesis containing everything that was calculated with the Swim software, a framework developed by the KM3NeT collaboration.
 
 ## ReconstructionPerfomance
 This folder contains a study for perfoming an analysis in the perfomance of the available reconstructions both availble from the AntDSTs and NNfit.
