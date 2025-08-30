@@ -101,5 +101,24 @@ int main(int argc, char* argv[]){
         }
 
         Fitter.WriteOutput(outputname.c_str()); //This will write two output files, 1 json 1 root
+
+        // This will write a file with chi2 stat maps, if false, poissonian chi2, if true, gaussian.
+        string chi2map = string(path + "/Chi2Maps.root");
+        string model_hist =  string(path + "/ModelHist.root");
+        string data_hist =  string(path + "/DataHist.root");
+
+        Fitter.WriteChi2Maps(chi2map.c_str(), false);
+
+        TFile  outfile_model(model_hist.c_str(), "recreate");
+        cout << "Writing model histogram to " << model_hist << endl;
+        outfile_model.cd();
+        Fitter.expModel->WriteExperiment(&outfile_model);
+        outfile_model.Close();
+
+        TFile  outfile_data(data_hist.c_str(), "recreate");
+        cout << "Writing data histogram to " << data_hist << endl;
+        outfile_data.cd();
+        Fitter.expData->WriteExperiment(&outfile_data);
+        outfile_data.Close();
     }
 }

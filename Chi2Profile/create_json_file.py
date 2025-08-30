@@ -267,9 +267,9 @@ def create_json_binning(
   energy_reco_bins = np.append(energy_reco_bins, 20000)
   json_file = {
       "binning": {
-        "nEbinsTrue": 30,
+        "nEbinsTrue": 120,
         "EminTrue": 1,
-        "EmaxTrue": 100,
+        "EmaxTrue": 10000,
 
         "nEbinsReco": 20,
         "EminReco": 10,
@@ -323,7 +323,7 @@ def run_json_files(
     create_json_params(json_path, order, systematics)
     
     print("\nCreate JSON binning files...")
-    create_json_binning(json_path, 15)
+    create_json_binning(json_path, 10)
 
 
 def main():
