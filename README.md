@@ -15,7 +15,7 @@ The repository is organized into modules, each addressing a different step of th
 │
 ├── LICENSE <- Open-source license for this repository.
 |
-├── libraries <- Collection of custom functions and classes for data handling and analysis.
+├── external_library <- Collection of custom functions and classes for data handling and analysis.
 │
 ├── ReconstructionPerformance <- Scripts to evaluate reconstruction performance,
 │                              comparing AntDSTs and NNFit outputs.
